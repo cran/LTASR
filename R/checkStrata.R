@@ -11,6 +11,7 @@
 #' @examples
 #' library(LTASR)
 #' library(dplyr)
+#' library(purrr)
 #'
 #' #Import example person file
 #' person <- person_example %>%
@@ -42,7 +43,7 @@ checkStrata <- function(py_table, rateobj) {
       dplyr::summarize(obs = sum(.data$obs),
                 py = sum(.data$pdays)/365.25)
     message("- ", round(ct$py,0), ' person-years and ', ct$obs,
-            " deaths removed\n because not in strata of rate file\n below are example categories:")
+            " deaths removed\n  because not in strata of rate file\n  below are example categories:")
     out %>%
       dplyr::ungroup() %>%
       dplyr::select(.data$ageCat, .data$CPCat, .data$gender, .data$race) %>%

@@ -39,7 +39,7 @@ mapDeaths <- function(persondf, rateobj){
                    dplyr::left_join(mapping, by=c('rev', 'code')) %>%
                    dplyr::filter(is.na(minor)))
   if (recode > 0){message("- ", recode, ' unknown causes of death mapped to residual minor ' , rateobj$residual,
-                          '\nUse mapDeaths() function to output which minor/outcome
-each death is mapped to in your cohort')}
+                          '\n  Use mapDeaths() function to output which minor/outcome
+  each death is mapped to in your cohort')}
   return(deaths_minors)
 }

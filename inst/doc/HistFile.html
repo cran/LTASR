@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>History File Stratification</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">History File Stratification</h1>
+
+
+
+<div id="history-file" class="section level2">
+<h2>History File</h2>
+<p>In order to stratify a cohort by a time-dependent exposure covariate
+(aside from age and calendar period), a history file must be created and
+read in. This file contains one row per person per exposure period. An
+exposure period is a period of time in which all daily values/levels of
+an exposure variable are assumed to be constant.</p>
+<p>Below are the required variables to be found within the history
+file:</p>
+<table style="width:100%;">
+<colgroup>
+<col width="39%" />
+<col width="46%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="left">Description</th>
+<th align="left">Format</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">id</td>
+<td align="left">Unique identifier for each person</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">begin_dt</td>
+<td align="left">Beginning date of exposure period</td>
+<td align="left">character</td>
+</tr>
+<tr class="odd">
+<td align="left">end_dt</td>
+<td align="left">End date of exposure period</td>
+<td align="left">character</td>
+</tr>
+<tr class="even">
+<td align="left">&lt;daily exposure variables&gt;</td>
+<td align="left">Exposure variable(s)</td>
+<td align="left">numeric</td>
+</tr>
+</tbody>
+</table>
+<p>Below is an example layout of a history file with multiple
+exposures:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">id</th>
+<th align="left">begin_dt</th>
+<th align="left">end_dt</th>
+<th align="right">employed</th>
+<th align="right">exposure_level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">12/21/1970</td>
+<td align="left">6/15/1971</td>
+<td align="right">1</td>
+<td align="right">71.0</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="left">6/16/1971</td>
+<td align="left">12/31/1980</td>
+<td align="right">1</td>
+<td align="right">5.0</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="left">1/19/1972</td>
+<td align="left">6/15/1975</td>
+<td align="right">1</td>
+<td align="right">10.0</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">11/23/1970</td>
+<td align="left">12/7/1972</td>
+<td align="right">1</td>
+<td align="right">41.5</td>
+</tr>
+</tbody>
+</table>
+<p>The above example contains 3 persons with 2 exposure variables,
+<code>employed</code> and <code>exposure_level</code>. Person/id 1
+contains 2 non-overlapping exposure periods in which
+<code>employed</code> is 1 for both but <code>exposure_level</code>
+drops from 71 to 5 units per day.</p>
+</div>
+<div id="calculation-of-cumulative-exposure-from-history-file" class="section level2">
+<h2>Calculation of Cumulative Exposure From History File</h2>
+<p>LTASR comes with an example history file, called
+<code>history_example</code>, that can be used in conjunction with
+<code>person_example</code> for testing. Below reads in both example
+files and formats dates appropriately:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>person <span class="ot">&lt;-</span> person_example <span class="sc">%&gt;%</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dob =</span> <span class="fu">as.Date</span>(dob, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">pybegin =</span> <span class="fu">as.Date</span>(pybegin, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">dlo =</span> <span class="fu">as.Date</span>(dlo, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>history <span class="ot">&lt;-</span> history_example <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">begin_dt =</span> <span class="fu">as.Date</span>(begin_dt, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">end_dt =</span> <span class="fu">as.Date</span>(end_dt, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id)</span></code></pre></div>
+<p>For the remainder of this section, we will consider Person/id 1 to
+demonstrate how exposure is calculated over time. Below is the
+information found within the person file for person/id 1:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">id</th>
+<th align="left">gender</th>
+<th align="left">race</th>
+<th align="left">dob</th>
+<th align="left">pybegin</th>
+<th align="left">dlo</th>
+<th align="left">vs</th>
+<th align="right">rev</th>
+<th align="left">code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">M</td>
+<td align="left">W</td>
+<td align="left">11/20/1945</td>
+<td align="left">12/21/1970</td>
+<td align="left">7/31/2016</td>
+<td align="left"></td>
+<td align="right"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p>This example person’s follow-up starts on 12/21/1970 and continues
+through 7/31/2016. Below plots their cumulative exposure for both
+<code>employed</code> and <code>exposure_level</code> variables:<br />
+<img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>Both exposures start at 0, then <code>employed</code> increases by 1
+unit per day for both periods. This can therefore be thought of as a
+duration variable (in days) of all periods. The
+<code>exposure_level</code> increases rapidly (71 units per day) during
+the first period and then increases slower (5 units per day).</p>
+<p><strong>NOTE:</strong> Any gaps within the history file and the
+follow-up times (for example, the period between the last exposure
+period within the history file and through the end of follow-up) is
+assumed to be 0. That is, exposure values do not change during these
+periods.</p>
+</div>
+<div id="stratifying-person-time" class="section level2">
+<h2>Stratifying person time</h2>
+<p>Once the person file and history file have been read in (see <em>Demo
+for basic stratification</em> vignette for additional information on how
+to read in files), information on how to stratify the exposure variables
+must be defined using the <code>exp_strata()</code> function.</p>
+<p>Below specifies which exposure variables to consider, what cut-points
+to use for stratification and any lag (in years) to apply to the
+cumulative exposure variable:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>exp1 <span class="ot">&lt;-</span> <span class="fu">exp_strata</span>(<span class="at">var =</span> <span class="st">&#39;employed&#39;</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cutpt =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="dv">365</span>, <span class="cn">Inf</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">lag =</span> <span class="dv">0</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>exp2 <span class="ot">&lt;-</span> <span class="fu">exp_strata</span>(<span class="at">var =</span> <span class="st">&#39;exposure_level&#39;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cutpt =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="dv">0</span>, <span class="dv">10000</span>, <span class="dv">20000</span>, <span class="cn">Inf</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">lag =</span> <span class="dv">10</span>)</span></code></pre></div>
+<p>The <code>employed</code> variable will contain 2 strata: (-Inf, 365]
+and (365, Inf]. Or, put alternatively, ≤ 1 year and &gt; 1 year.</p>
+<p>The <code>exposure_level</code> will contain 5 strata: (-Inf, 0], (0,
+10000], (10000, 20000] and (20000, Inf). Therefore, the first category
+defines unexposed person-time. Additionally, a 10 year lag will be
+applied when defining strata.</p>
+<p>Once the exposure strata have been defined, LTASR provides two
+functions for stratifying the cohort. One is
+<code>get_table_history</code> whose usage is:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>py_table <span class="ot">&lt;-</span> <span class="fu">get_table_history</span>(<span class="at">persondf =</span> person,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">rateobj =</span> us_119ucod_19602020,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">historydf =</span> history,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">exps =</span> <span class="fu">list</span>(exp1, exp2))</span></code></pre></div>
+<p>This creates the below table:</p>
+<table>
+<colgroup>
+<col width="10%" />
+<col width="15%" />
+<col width="8%" />
+<col width="6%" />
+<col width="15%" />
+<col width="23%" />
+<col width="7%" />
+<col width="6%" />
+<col width="6%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">ageCat</th>
+<th align="left">CPCat</th>
+<th align="left">gender</th>
+<th align="left">race</th>
+<th align="left">employedCat</th>
+<th align="left">exposure_levelCat</th>
+<th align="right">pdays</th>
+<th align="right">_o55</th>
+<th align="right">_o52</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">[15,20)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">F</td>
+<td align="left">W</td>
+<td align="left">(-Inf,365]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">365</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">[15,20)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">F</td>
+<td align="left">W</td>
+<td align="left">(365, Inf]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">381</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">[25,30)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">M</td>
+<td align="left">N</td>
+<td align="left">(-Inf,365]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">55</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">[25,30)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">M</td>
+<td align="left">W</td>
+<td align="left">(-Inf,365]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">177</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">[25,30)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">M</td>
+<td align="left">W</td>
+<td align="left">(365, Inf]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">1295</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">[25,30)</td>
+<td align="left">[1975,1980)</td>
+<td align="left">M</td>
+<td align="left">W</td>
+<td align="left">(365, Inf]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">323</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>This function is very fast, and replicates how the original LTAS
+behaved. It also exactly stratifies the person-days into the appropriate
+strata. However, it may be desired to calculate mean exposure values for
+each strata to be used in a Poisson regression later. To implement this
+<em>exactly</em> is very slow.</p>
+<p>Therefore, a separate function, <code>get_table_history_est</code>,
+calculates these mean exposure values and also allows for a
+<code>step</code> parameter to be specified defining the number of days
+to calculate the cumulative exposure.</p>
+<p>An example usage is:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>py_table_est <span class="ot">&lt;-</span> <span class="fu">get_table_history_est</span>(<span class="at">persondf =</span> person,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">rateobj =</span> us_119ucod_19602020,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">historydf =</span> history,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">exps =</span> <span class="fu">list</span>(exp1, exp2),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">step =</span> <span class="dv">7</span>)</span></code></pre></div>
+<p>By specifying <code>step = 7</code>, person time is considered every
+7 days when allocating person-time to strata. This results in a
+significant increase in speed at the cost of a (generally) trivial
+amount of inaccuracy.</p>
+<p>Specifying <code>step = 1</code> will calculate strata
+<em>exactly</em> for each individual day, but is significantly
+slower.</p>
+<p>Below is the result of this specification:</p>
+<table style="width:100%;">
+<colgroup>
+<col width="7%" />
+<col width="11%" />
+<col width="6%" />
+<col width="4%" />
+<col width="11%" />
+<col width="17%" />
+<col width="5%" />
+<col width="4%" />
+<col width="4%" />
+<col width="8%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">ageCat</th>
+<th align="left">CPCat</th>
+<th align="left">gender</th>
+<th align="left">race</th>
+<th align="left">employedCat</th>
+<th align="left">exposure_levelCat</th>
+<th align="right">pdays</th>
+<th align="right">_o55</th>
+<th align="right">_o52</th>
+<th align="right">employed</th>
+<th align="right">exposure_level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">[15,20)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">F</td>
+<td align="left">W</td>
+<td align="left">(-Inf,365]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">361</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">184.0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">[15,20)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">F</td>
+<td align="left">W</td>
+<td align="left">(365, Inf]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">385</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">557.0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">[25,30)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">M</td>
+<td align="left">N</td>
+<td align="left">(-Inf,365]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">53</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">30.0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">[25,30)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">M</td>
+<td align="left">W</td>
+<td align="left">(-Inf,365]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">376</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">136.9</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">[25,30)</td>
+<td align="left">[1970,1975)</td>
+<td align="left">M</td>
+<td align="left">W</td>
+<td align="left">(365, Inf]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">1096</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">927.5</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">[25,30)</td>
+<td align="left">[1975,1980)</td>
+<td align="left">M</td>
+<td align="left">W</td>
+<td align="left">(365, Inf]</td>
+<td align="left">(-Inf,0]</td>
+<td align="right">322</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1636.5</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>As can be seen, the <code>pday</code> are slightly different than the
+previous table. However, the effects on results will generally be
+trivial.</p>
+<p>In addition, two additional variables are available:
+<code>employed</code> and <code>exposure_level</code> indicating the
+person-time weighted mean values.<br />
+## Step Specifications</p>
+<p>When specifying the step parameter, there is a trade-off between
+computation speed and accuracy. Specifying <code>step = 1</code> will
+result in the most accurate stratification, but can be extremely
+slow.</p>
+<p>To investigate this further, below plots the time (in minutes) taken
+to stratify a cohort of 5,200 people with 2 exposure variables for
+various specifications of the <code>step</code> parameter:<br />
+<img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
+<p>There are dramatic savings in computation time when increasing the
+step parameter in the low end. In this example, at about
+<code>step = 10</code>, improvements in computation time diminishes. It
+seems a step parameter of about 5-10 is a good compromise.</p>
+<p>Exact times will depend upon:</p>
+<ul>
+<li>the size of the cohort,<br />
+</li>
+<li>the number of exposure variables and<br />
+</li>
+<li>the the number of strata per exposure variable.</li>
+</ul>
+<p>An additional consideration is the level of detail of the exposure
+variable. That is, if exposure is dramatically changing, relative to its
+specified strata, the loss of accuracy will be more dramatic for small
+increases of the step parameter. For example, age is stratified by
+5-year increments, therefore, a <code>step</code> value of 1-week
+(<code>step = 7</code>) will cause a trivial amount of inaccuracy.</p>
+<p>One option is to use a crude step value during initial
+investigations, but when results are to be published/presented, the
+function can be run again with a smaller step value.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

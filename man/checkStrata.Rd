@@ -24,6 +24,7 @@ Checks all strata in py_table are contained in rate file
 \examples{
 library(LTASR)
 library(dplyr)
+library(purrr)
 
 #Import example person file
 person <- person_example \%>\%

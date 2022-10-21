@@ -1,10 +1,11 @@
-
 #' Stratify Person Table with Time Varying Co-variate
 #'
-#' `get_table_history` reads in a data.frame/tibble (`persondf`) containing basic demographic information for
+#' `get_table_history_est` reads in a data.frame/tibble (`persondf`) containing basic demographic information for
 #' each person of the cohort as well as a data.frame/tibble (`historydf`) containing time varying exposure
 #' information and stratifies the person-time and deaths into 5-year age, 5-year calendar period, race, sex and
-#' exposure categories. See `Details` for information on how the person file and history file must be
+#' exposure categories. Additionally, average cumulative exposure values for each strata and each exposure
+#' variable are included. These strata are more crudely calculated by taking regular steps (such as every 7 days)
+#' as opposed to evaluating every individual day. See `Details` for information on how the person file and history file must be
 #' formatted.
 #'
 #' The persondf tibble must contain the variables:
@@ -30,7 +31,9 @@
 #' @param exps a list containing exp_strata objects created by `exp_strata()`.
 #' @param strata any additional variables contained in persondf on which to stratify.
 #' Must be wrapped in a `vars()` call from `dplyr`.
-#' @param batch_size a number specifying how many persons to stratify at a time. Default is 500.
+#' @param step numeric defining number of days to jump when calculating cumulative exposure values. Exact stratification
+#' specifies a step of 1 day.
+#' @param batch_size a number specifying how many persons to stratify at a time.
 #'
 #' @return A data.frame with a row for each strata containing the number of observed
 #' deaths within each of the defined minors/outcomes (`_o1`-`_oxxx`) and the number of person days.
@@ -53,7 +56,7 @@
 #'
 #' #Import default rate object
 #' rateobj <- us_119ucod_19602020
-#'
+
 #' #Define exposure of interest. Create exp_strata object.The `employed` variable
 #' #indicates (0/1) periods of employment and will be summed each day of each exposure
 #' #period. Therefore, this calculates duration of employment in days. The cut-points
@@ -64,10 +67,10 @@
 #'                    lag = 0)
 #'
 #' #Stratify cohort by employed variable.
-#' py_table <- get_table_history(persondf = person,
-#'                               rateobj = rateobj,
-#'                               historydf = history,
-#'                               exps = list(exp1))
+#' py_table <- get_table_history_est(persondf = person,
+#'                                   rateobj = rateobj,
+#'                                   historydf = history,
+#'                                   exps = list(exp1))
 #'
 #' #Multiple exposures can be considered.
 #' exp1 <- exp_strata(var = 'employed',
@@ -78,42 +81,21 @@
 #'                    lag = 10)
 #'
 #' #Stratify cohort by employed variable.
-#' py_table <- get_table_history(persondf = person,
-#'                               rateobj = rateobj,
-#'                               historydf = history,
-#'                               exps = list(exp1, exp2))
+#' py_table <- get_table_history_est(persondf = person,
+#'                                   rateobj = rateobj,
+#'                                   historydf = history,
+#'                                   exps = list(exp1, exp2))
 #'
 #' @import rlang
-
-get_table_history <- function(persondf,
-                              rateobj,
-                              historydf,
-                              exps=list(),
-                              strata=dplyr::vars(),
-                              batch_size = 500){
-
-  find_cuts <- function(bd, bcum, ec, x, cutpts){
-    dts <- as.Date(c())
-    bc <- cut(bcum, cutpts) %>% as.numeric()
-    if (x != 0){
-      for (cat in (bc+1) : ec){
-        n <- ((cutpts[cat] - bcum + x) / x + bd - 1)
-        if (n == bd - 1) n <- bd
-        dts <- c(dts, n)
-      }
-    }
-    return(unique(dts))
-  }
-  get_dates <- function(dob, pybegin, dlo) {
-    full <- sort(c(
-      pybegin,
-      dob + ceiling(rateobj$age_cut * 365.24 - 1),
-      lubridate::mdy(paste0('1/1/', rateobj$cp_cut)),
-      dlo
-    )) %>%
-      unique()
-    return(full[dplyr::between(full, pybegin, dlo)])
-  }
+#' @import dplyr
+#'
+get_table_history_est <- function(persondf,
+                                  rateobj,
+                                  historydf,
+                                  exps,
+                                  strata = dplyr::vars(),
+                                  step = 7,
+                                  batch_size = 25 * step) {
 
 
   persondf <- persondf %>%
@@ -128,11 +110,11 @@ get_table_history <- function(persondf,
                   .data$code,
                   !!!strata)#Keep only necessary variables
 
-  exp_var <- dplyr::vars()
+  exp_var <- vars()
   for (..e in exps){
     new_var <- paste0(..e$var, 'Cat')
-    exp_var <- append(exp_var, dplyr::vars(!!rlang::sym(..e$var)))
-    strata <- append(strata, dplyr::vars(!!rlang::sym(new_var)))
+    exp_var <- append(exp_var, vars(!!sym(..e$var)))
+    strata <- append(strata, vars(!!sym(new_var)))
   }
   if (length(strata) == 0) ..names <- c() else ..names <- purrr::map_chr(strata, rlang::as_name)
 
@@ -148,7 +130,8 @@ get_table_history <- function(persondf,
 
   pytot <- person_all %>%
     dplyr::mutate(py = .data$dlo - .data$pybegin + 1) %>%
-    dplyr::summarize(py = sum(.data$py))
+    dplyr::summarize(py = sum(.data$py),
+                     .groups='drop')
   pytot <- as.numeric(pytot[[1]])
 
   #Format History
@@ -161,6 +144,13 @@ get_table_history <- function(persondf,
   deaths_minors <- mapDeaths(person_all, rateobj) %>%
     dplyr::select(.data$id, .data$minor)
   person_all <- dplyr::left_join(person_all, deaths_minors, by='id')
+
+  #Set up mapping dates
+  stop_pts_n <- floor(365 / step)
+  md_tmplt <- c(as.Date('12/31/2014', format='%m/%d/%Y') + step * (1:stop_pts_n),
+                as.Date('12/31/2015', format='%m/%d/%Y')) %>%
+    unique() %>%
+    `[`(lubridate::year(.) == 2015)
 
   #Loop through people
   loops <- ceiling(nrow(person_all)/batch_size)
@@ -180,90 +170,78 @@ get_table_history <- function(persondf,
       dplyr::filter(dplyr::between(dplyr::row_number(),(it-1)*batch_size+1,it*batch_size)) %>%
       dplyr::filter(!is.na(.data$id))
     history <- historydf %>%
-      dplyr::filter(id %in% person$id) %>%
+      filter(id %in% person$id) %>%
       dplyr::filter(!is.na(.data$id))
     #################################
 
+
     # Get long person file
     person_long <- person %>%
-      dplyr::mutate(date = purrr::pmap(list(.data$dob, .data$pybegin, .data$dlo), ~get_dates(..1, ..2, ..3))) %>%
-      tidyr::unnest(date)
-
-
-    # Get long history file
-    hiss <- list()
-    for (..e in exps){
-      his <- history %>%
-        dplyr::select(.data$id, .data$begin_dt, .data$end_dt, ..e$var) %>%
-        dplyr::group_by(id) %>%
-        dplyr::mutate(dur = difftime(.data$end_dt, .data$begin_dt, units = 'days') %>% as.numeric() + 1,
-               endcum = !!rlang::sym(..e$var)*.data$dur,
-               endcum = cumsum(.data$endcum),
-               begcum = stats::lag(.data$endcum) + !!rlang::sym(..e$var),
-               begcum = dplyr::if_else(dplyr::row_number() == 1, !!rlang::sym(..e$var), .data$begcum),
-               begcat = cut(.data$begcum, ..e$cutpt) %>% as.numeric(),
-               endcat = cut(.data$endcum, ..e$cutpt) %>% as.numeric()) %>%
-        dplyr::mutate(d = purrr::pmap(list(.data$begin_dt, .data$begcum, .data$endcat, !!rlang::sym(..e$var)), ~find_cuts(..1, ..2, ..3, ..4, ..e$cutpt)),
-               d = if_else(.data$begcat == .data$endcat, list(c()), .data$d),
-               begin_dt = purrr::map2(.data$begin_dt, .data$d, ~ c(.x, .y+1) + ..e$lag*365.25),
-               end_dt = purrr::map2(.data$end_dt, .data$d, ~ c(as.Date(.y), .x) + ..e$lag*365.25)) %>%
-        dplyr::select(-.data$dur, -.data$endcum, -.data$begcum, -.data$endcat, -.data$begcat, -.data$d) %>%
-        tidyr::unnest(c(.data$begin_dt, .data$end_dt)) %>%
-        dplyr::mutate(dur = difftime(.data$end_dt, .data$begin_dt, units = 'days') %>% as.numeric() + 1,
-               endcum = !!rlang::sym(..e$var)*.data$dur,
-               endcum = cumsum(.data$endcum),
-               endcat = cut(.data$endcum, ..e$cutpt)) %>%
-        dplyr::select(id, date = .data$begin_dt, !!rlang::sym(paste0(..e$var, 'Cat')) := .data$endcat)
-      hiss <- append(hiss, list(his))
-    }
-
-    hiss <- hiss %>%
-      purrr::reduce(dplyr::full_join, by=c('id', 'date')) %>%
-      dplyr::arrange(id, .data$date)
-
-    # Merge History with Person
-    person_long <- dplyr::full_join(person_long, hiss, by=c('id', 'date')) %>%
-      dplyr::arrange(id, .data$date) %>%
-      dplyr::group_by(id) %>%
-      dplyr::mutate_at(c(..names,
-                         'gender', 'race', 'dob', 'pybegin', 'dlo'), ~ zoo::na.locf(., na.rm = FALSE)) %>%
-      dplyr::filter(.data$pybegin <= .data$date,
-                    .data$date <= .data$dlo)
-    for (.x in exps) {
-      vcat <- paste0(.x$var, 'Cat')
-      person_long <- person_long %>%
-        dplyr:: mutate(!!rlang::sym(vcat) := if_else(is.na(!!rlang::sym(vcat)), cut(0, .x$cutpt), !!rlang::sym(vcat)))
-    }
-    person_long <- person_long %>%
+      dplyr::group_by(.data$id) %>%
+      expand_dates(.data$pybegin, .data$dlo, md_tmplt) %>%
       dplyr::mutate(age = floor(as.numeric(.data$date - .data$dob + 1)/365.24),
                     year = lubridate::year(.data$date),
-                    ageCat = cut(.data$age, c(-Inf, 3:17 * 5, Inf), right=FALSE), #5-year age
-                    CPCat = cut(.data$year, c(-Inf, 380:600 * 5), right=FALSE)) %>%  #5-year CP
+                    ageCat = cut(.data$age, c(-Inf, rateobj$age_cut), right=FALSE), #5-year age
+                    CPCat = cut(.data$year, c(-Inf, rateobj$cp_cut, Inf), right=FALSE)) %>% #5-year CP
+      dplyr::mutate(days = difftime(date, lag(date),
+                                    units = 'days') %>%
+                      as.numeric(),
+                    year = lubridate::year(date)) %>%
+      filter(!is.na(.data$period))
+
+    # Get long history file
+    history_long <- history %>%
+      expand_dates(.data$begin_dt, .data$end_dt, md_tmplt) %>%
       dplyr::group_by(.data$id) %>%
-      dplyr::mutate(pdays = difftime(dplyr::lead(.data$date), .data$date, units = 'days') %>% as.numeric(),
-                    pdays = dplyr::if_else(dplyr::row_number() == dplyr::n(), 1L, as.integer(.data$pdays)))
+      dplyr::mutate(days = difftime(date, lag(date),
+                                    units = 'days') %>%
+                      as.numeric(),
+                    year = lubridate::year(date)) %>%
+      dplyr::filter(!is.na(.data$period)) %>%
+      dplyr::select(-date) %>%
+      dplyr::mutate_at(purrr::map_chr(exps, ~.$var), ~as.double(cumsum(. * .data$days))) %>%
+      dplyr::group_by(.data$id, .data$year, .data$period) %>%
+      dplyr::filter(row_number() == n()) %>%
+      dplyr::group_by(.data$id)
+
+
+    # Merge History with Person
+    for (..e in exps){
+      person_long <- person_long %>%
+        dplyr::left_join(history_long %>%
+                           dplyr::mutate(year=.data$year+..e$lag) %>%
+                           dplyr::select(.data$id, .data$period, .data$year, ..e$var), by=c('id', 'year', 'period')) %>%
+        dplyr::group_by(.data$id) %>%
+        dplyr::mutate(!!sym(..e$var) := zoo::na.locf(!!sym(..e$var), na.rm = FALSE),
+                      !!sym(..e$var) := if_else(is.na(!!sym(..e$var)), 0, !!sym(..e$var))) %>%
+        dplyr::mutate(!!sym(paste0(..e$var, 'Cat')) := cut(!!sym(..e$var), ..e$cutpt))
+    }
+
 
 
     # Collapse into categories
+    #options(dplyr.summarise.inform = FALSE)
     py_days <- person_long %>%
       dplyr::group_by(.data$ageCat, .data$CPCat, .data$gender, .data$race, !!!strata) %>%
-      dplyr::summarize(pdays = sum(pdays))
-    # py_exp <- person_long %>%
-    #   dplyr::group_by(.data$ageCat, .data$CPCat, .data$gender, .data$race, !!!strata) %>%
-    #   dplyr::summarize_at(exp_var, sum)
+      dplyr::summarize(pdays = sum(.data$days),
+                       .groups='drop')
+    py_exp <- person_long %>%
+      dplyr::group_by(.data$ageCat, .data$CPCat, .data$gender, .data$race, !!!strata) %>%
+      dplyr::summarize_at(exp_var, ~sum(. * .data$days))
     py_min <- person_long %>%
       dplyr::filter(.data$dlo == .data$date) %>%
       dplyr::group_by(.data$ageCat, .data$CPCat, .data$gender, .data$race, !!!strata, .data$minor) %>%
       dplyr::filter(!is.na(.data$minor)) %>%
-      dplyr::summarize(obs = dplyr::n()) %>%
+      dplyr::summarize(obs = dplyr::n(),
+                       .groups='drop') %>%
       tidyr::pivot_wider(names_from = .data$minor, names_prefix = '_o', values_from = .data$obs)
     py_table <- dplyr::full_join(py_days, py_min, by=c('ageCat', 'CPCat', 'gender', 'race', ..names)) %>%
-      #dplyr::full_join(py_exp,by=c('ageCat', 'CPCat', 'gender', 'race', ..names)) %>%
+      dplyr::full_join(py_exp,by=c('ageCat', 'CPCat', 'gender', 'race', ..names)) %>%
       dplyr::bind_rows(py_table)
     py_table <- py_table %>%
       dplyr::group_by(.data$ageCat, .data$CPCat, .data$gender, .data$race, !!!strata) %>%
-      dplyr::summarise_at(.vars=dplyr::vars(.data$pdays, dplyr::starts_with('_o')), .funs = sum, na.rm=T) #, map_chr(exps, ~.$var)
-    rm(person_long, person, hiss, history)
+      dplyr::summarise_at(.vars=dplyr::vars(.data$pdays, dplyr::starts_with('_o'), purrr::map_chr(exps, ~.$var)), .funs = sum, na.rm=T)
+    rm(person_long, person, history_long, history)
 
     #Update Progress Bar
     end[it] <- Sys.time()
@@ -281,8 +259,8 @@ get_table_history <- function(persondf,
   close(pb)
 
   # Calculate Means of exposures
-  # py_table <- py_table %>%
-  #   mutate_at(map_chr(exps, ~.$var), ~./.data$pdays)
+  py_table <- py_table %>%
+    mutate_at(purrr::map_chr(exps, ~.$var), ~./.data$pdays)
 
   # Unfactor ageCat and CPCat
   py_table <- py_table %>%
@@ -297,7 +275,8 @@ get_table_history <- function(persondf,
     dplyr::ungroup() %>%
     dplyr::mutate(obs = rowSums(dplyr::select(., dplyr::starts_with('_o')))) %>%
     dplyr::summarize(obs = sum(.data$obs),
-                     py = sum(.data$pdays)/365.25)
+                     py = sum(.data$pdays)/365.25,
+                     .groups='drop')
   message("- Person Table successfully created\n ",
           round(ct$py,0), ' person-years and ', ct$obs,
           " deaths in final table")

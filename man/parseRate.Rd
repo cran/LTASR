@@ -17,6 +17,8 @@ returns a list containing:
 how minors are mapped to majors
 \item $mapping: a dataframe/tibble listing how each icd-code and revision will be mapped
 to each minor number
+\item $age_cut: a numeric specifying cut-points for age strata
+\item $cp_cut: a numeric specifying cut-points for calendar period strata
 }
 }
 \description{

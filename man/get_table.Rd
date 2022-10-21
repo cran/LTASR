@@ -4,17 +4,17 @@
 \alias{get_table}
 \title{Stratify Person Table}
 \usage{
-get_table(persondf, rateobj, batch_size = 25, strata = dplyr::vars())
+get_table(persondf, rateobj, strata = dplyr::vars(), batch_size = 500)
 }
 \arguments{
 \item{persondf}{data.frame like object containing one row per person with the required demographic information}
 
-\item{rateobj}{a rate object created by the \code{parseRate} function}
-
-\item{batch_size}{a number specifying how many persons to stratify at a time. Default is 25.}
+\item{rateobj}{a rate object created by the \code{parseRate} function, or the included rate object \code{us_119ucod_19602020}}
 
 \item{strata}{any additional variables contained in persondf on which to stratify.
 Must be wrapped in a \code{vars()} call from \code{dplyr}.}
+
+\item{batch_size}{a number specifying how many persons to stratify at a time. Default is 500}
 }
 \value{
 A data.frame with a row for each strata containing the number of observed
@@ -27,15 +27,15 @@ for each person of the cohort and stratifies the person-time and deaths into 5-y
 person file must be formatted.
 }
 \details{
-The person file must contain the variables:
+The persondf tibble must contain the variables:
 \itemize{
 \item id,
-\item gender (numeric: 'M'/'F'),
-\item race (numeric: 'W'/'N'),
+\item gender (character: 'M'/'F'),
+\item race (character: 'W'/'N'),
 \item dob (date),
 \item pybegin (date),
 \item dlo	(date),
-\item rev (numeric: 5-10),
+\item rev (numeric: values 5-10),
 \item code (character: ICD code)
 }
 }

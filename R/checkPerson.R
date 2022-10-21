@@ -5,25 +5,14 @@
 #' `checkPerson` checks that the person dataframe is formatted correctly
 #'
 #' @param person person dataframe
+#' @param rateobj rateobject
 #'
 #' @return No return value, called for side effects
-#' @export
 #'
-#' @examples
-#' library(LTASR)
-#' library(dplyr)
-#'
-#' #Import example peron file
-#' person <- person_example %>%
-#'   mutate(dob = as.Date(dob, format='%m/%d/%Y'),
-#'          pybegin = as.Date(pybegin, format='%m/%d/%Y'),
-#'          dlo = as.Date(dlo, format='%m/%d/%Y'))
-#'
-#' #Returns nothing
-#' checkPerson(person)
+#' @noRd
 #'
 #' @importFrom rlang .data
-checkPerson <- function(person){
+checkPerson <- function(person, rateobj){
   ###################################################
   # Check for necessary variables
   number <- c('id', 'gender', 'race',
@@ -61,15 +50,18 @@ checkPerson <- function(person){
   # Race:   1 = white
   #         2 = non-white
   # Ensure no NAs
-  message('- Below are the gender and race distributions of your person file:')
-  person %>%
-    dplyr::count(.data$gender) %>%
-    knitr::kable() %>%
-    print()
-  person %>%
-    dplyr::count(.data$race) %>%
-    knitr::kable()%>%
-    print()
+  missing_gender <- setdiff(person$gender, rateobj$rates$gender)
+  if (length(missing_gender) > 0){
+    message('- The person file contains the following gender codes:')
+    cat('  ', missing_gender)
+    message('\n  which are not in the rate file. These persons will be dropped.')
+  }
+  missing_race <- setdiff(person$race, rateobj$rates$race)
+  if (length(missing_race) > 0){
+    message('- The person file contains the following race codes:')
+    cat('  ', missing_race)
+    message('\n  which are not in the rate file. These persons will be dropped.')
+  }
 
   ###################################################
   # Check rev and code variables

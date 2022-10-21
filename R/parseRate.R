@@ -5,11 +5,15 @@
 #' @return returns a list containing:
 #' 1. $residual: the minor number where all unknown deaths will be assigned
 #'
-#' 2. $MinorDesc: a dataframe/tibble giving descriptions of minor numbers as well as
+#' 2. $MinorDesc: a data.frame/tibble giving descriptions of minor numbers as well as
 #' how minors are mapped to majors
 #'
-#' 3. $mapping: a dataframe/tibble listing how each icd-code and revision will be mapped
+#' 3. $mapping: a data.frame/tibble listing how each icd-code and revision will be mapped
 #' to each minor number
+#'
+#' 4. $age_cut: a numeric specifying cut-points for age strata
+#'
+#' 5. $cp_cut: a numeric specifying cut-points for calendar period strata
 #'
 #' @export
 #'
@@ -77,7 +81,7 @@ parseRate <- function(xmlpath){
       lower = stringr::word(Description, 1, sep=' - '),
       upper = stringr::word(Description, 2, sep=' - '),
 
-      Description = paste(as.numeric(lower) + 5, '-', as.numeric(upper) + 5),
+      Description = paste(as.numeric(upper) + 1, '-', as.numeric(upper) + 5),
       Id = Id %>%
         as.numeric() %>%
         `+`(1) %>%
@@ -94,6 +98,7 @@ parseRate <- function(xmlpath){
   rates <- dplyr::bind_rows(rates, nr)
 
   # Map age category indicators in rate file
+  age_cut <- c(as.numeric(Ages$EntryPointYears), Inf)
   rates <- Ages %>%
     dplyr::mutate(lower = stringr::word(Description, 1, sep=' - '),
            upper = stringr::word(Description, 2, sep=' - ') %>%
@@ -107,6 +112,9 @@ parseRate <- function(xmlpath){
     dplyr::select(-Ages)
 
   # Map CP category indicators in rate file
+  cp_cut <- purrr::map_dbl(stringr::str_split(CalendarPeriods$Description, '-'), ~as.numeric(.[1]))
+  cp_cut <- c(cp_cut, stringr::str_split(utils::tail(CalendarPeriods$Description, 1), '-')[[1]][2] %>%
+                as.numeric() + 1)
   rates <- CalendarPeriods %>%
     dplyr::mutate(lower = stringr::word(Description, 1, sep=' - '),
            upper = stringr::word(Description, 2, sep=' - ') %>%
@@ -118,15 +126,27 @@ parseRate <- function(xmlpath){
     dplyr::select(-CalendarPeriods)
 
   # Map Race category indicators in rate file
-  rates <-dplyr::tibble(Races = c(1, 2),
-                  race = c('W', 'N')) %>%
+  if (all.equal(Races$Description, c('White', 'All other races'))){
+    r_map <- c('White' = 'W', 'All other races' = 'N')
+    Races$Description <- r_map[Races$Description]
+  }
+  rates <- Races %>%
+    dplyr::mutate(Races = as.numeric(.data$Id)) %>%
+    dplyr::select(.data$Races,
+           race = .data$Description) %>%
     dplyr::right_join(rates, by='Races') %>%
     dplyr::select(-Races) %>%
     dplyr::rename(Races = race)
 
   # Map Gender category indicators in rate file
-  rates <-dplyr::tibble(Genders = c(1, 2),
-                        gen = c('M', 'F')) %>%
+  if (all.equal(Genders$Description, c('Male', 'Female'))){
+    g_map <- c('Male' = 'M', 'Female' = 'F')
+    Genders$Description <- g_map[Genders$Description]
+  }
+  rates <- Genders %>%
+    dplyr::mutate(Genders = as.numeric(.data$Id)) %>%
+    dplyr::select(.data$Genders,
+                  gen = .data$Description) %>%
     dplyr::right_join(rates, by='Genders') %>%
     dplyr::select(-Genders) %>%
     dplyr::rename(Genders = .data$gen)
@@ -137,5 +157,8 @@ parseRate <- function(xmlpath){
 
   return(list(residual = Residual,
               MinorDesc = description,
-              mapping = mapping, rates = rates))
+              mapping = mapping,
+              rates = rates,
+              age_cut = age_cut,
+              cp_cut = cp_cut))
 }

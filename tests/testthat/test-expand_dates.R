@@ -1,7 +1,10 @@
 test_that("Expand Dates work", {
   expect_equal(
-               expand_dates(data.frame(start = as.Date('3/1/2015', format='%m/%d/%Y'),
-                                       end = as.Date('3/15/2015', format='%m/%d/%Y')), start, end),
+               expand_dates(data.frame(id = 1,
+                                       start = as.Date('3/1/2015', format='%m/%d/%Y'),
+                                       end = as.Date('3/15/2015', format='%m/%d/%Y')), start, end) %>%
+                 dplyr::filter(!is.na(period)) %>%
+                 dplyr::select(-id, -period),
                dplyr::tibble(end = as.Date(c('3/15/2015',
                                       '3/15/2015',
                                       '3/15/2015',

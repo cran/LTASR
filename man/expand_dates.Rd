@@ -2,10 +2,15 @@
 % Please edit documentation in R/expand_dates.R
 \name{expand_dates}
 \alias{expand_dates}
-\title{Expand a data.frame to include all dates between a start and end value
-defined by parameters x and y}
+\title{Expand data through range of date values}
 \usage{
-expand_dates(df, start, end)
+expand_dates(
+  df,
+  start,
+  end,
+  md_tmplt = seq(as.Date("1/1/2015", "\%m/\%d/\%Y"), as.Date("12/31/2015",
+    "\%m/\%d/\%Y"), by = "day")
+)
 }
 \arguments{
 \item{df}{Input data.frame}
@@ -13,11 +18,13 @@ expand_dates(df, start, end)
 \item{start}{start date}
 
 \item{end}{end date}
+
+\item{md_tmplt}{Date vector that defines which dates within a year to output.}
 }
 \value{
 A data.frame/tibble containing all variables of the input data.frame
 as well as a new variable, \code{date}, with repeated rows for each date between
-\code{start} and \code{end}.
+\code{start} and \code{end} spaced as defined by \code{md_tmplt.}
 }
 \description{
 Expand a data.frame to include all dates between a start and end value
@@ -25,8 +32,9 @@ defined by parameters x and y
 }
 \examples{
 library(LTASR)
-data <- data.frame(start = as.Date('3/1/2015', format='\%m/\%d/\%Y'),
-                     end = as.Date('3/15/2015', format='\%m/\%d/\%Y'))
+data <- data.frame(id = 1,
+                   start = as.Date('3/1/2015', format='\%m/\%d/\%Y'),
+                   end = as.Date('3/15/2015', format='\%m/\%d/\%Y'))
 expand_dates(data, start, end)
 
 }
