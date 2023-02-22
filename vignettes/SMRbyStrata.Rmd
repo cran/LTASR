@@ -16,7 +16,12 @@ knitr::opts_chunk$set(
 
 ```{r setup, messages = FALSE, include = FALSE}
 library(LTASR)
-library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+library(purrr)
+library(stringr)
 library(knitr)
 ```
 When stratifying a cohort, it is generally desirable to calculate SMRs for different levels of a strata (such as a time-dependent exposure).  
@@ -100,6 +105,10 @@ smr_majors <-
   map(smr_minors,
       ~ smr_major(., us_119ucod_19602020))%>%
   setNames(names(smr_minors))
+
+#Adjust names of sheets
+names(smr_minors) <- str_replace_all(names(smr_minors), "\\[|\\]", "_")
+names(smr_majors) <- str_replace_all(names(smr_majors), "\\[|\\]", "_")
 
 #Save results 
 library(writexl)

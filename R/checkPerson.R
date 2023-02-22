@@ -30,12 +30,31 @@ checkPerson <- function(person, rateobj){
         lubridate::is.Date(person$dlo))) stop("Either dob, pybegin or dlo is not a date value")
 
   ###################################################
+  # Check for missing values
+  na_num <- person %>%
+    dplyr::select('id', 'gender', 'race',
+           'dob', 'pybegin', 'dlo') %>%
+    dplyr::summarize(dplyr::across(dplyr::everything(),
+                     ~ sum(is.na(.)))) %>%
+    tidyr::pivot_longer(everything())
+
+  if (sum(na_num$value) != 0){
+    nn <- na_num %>%
+      dplyr::filter(value > 0) %>%
+      `$`(name) %>%
+      paste0(collapse=', ')
+    stop('The following variables:\n       ',
+         nn,
+         '\n       conatin missing values.')
+  }
+
+  ###################################################
   # Are dates in proper order (dob <= pybegin <= dlo)
   dtorder <- person %>%
     dplyr::mutate(dob_gt_pybegin = (.data$dob > .data$pybegin),
            pybegin_gt_dlo = (.data$pybegin > .data$dlo)) %>%
-    dplyr::summarize(dob_gt_pybegin = sum(.data$dob_gt_pybegin),
-              pybegin_gt_dlo = sum(.data$pybegin_gt_dlo))
+    dplyr::summarize(dob_gt_pybegin = sum(.data$dob_gt_pybegin, na.rm = T),
+              pybegin_gt_dlo = sum(.data$pybegin_gt_dlo, na.rm = T))
   if (dtorder$dob_gt_pybegin != 0) stop('At least one person has a date of birth (dob)
        later than their person time begin date (pybegin)')
   if (dtorder$pybegin_gt_dlo != 0) warning('- At least one person has a person time begin date (pybegin)

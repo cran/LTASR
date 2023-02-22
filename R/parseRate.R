@@ -74,59 +74,59 @@ parseRate <- function(xmlpath){
     dplyr::mutate(minor = as.numeric(minor))
 
   # # Extend rates 5 calendar years assuming constant rates
+  CalendarPeriods <- CalendarPeriods %>%
+    dplyr::mutate(BeginDate = lubridate::ymd(.data$BeginDate),
+                  EndDate = lubridate::ymd(.data$EndDate))
   maxCP <- max(as.numeric(CalendarPeriods$Id))
   n <- CalendarPeriods %>%
-    dplyr::filter(as.numeric(Id) == maxCP) %>%
+    dplyr::filter(as.numeric(.data$Id) == maxCP) %>%
     dplyr::mutate(
-      lower = stringr::word(Description, 1, sep=' - '),
-      upper = stringr::word(Description, 2, sep=' - '),
+      upper = lubridate::year(.data$EndDate),
 
-      Description = paste(as.numeric(upper) + 1, '-', as.numeric(upper) + 5),
-      Id = Id %>%
+      Description = paste(as.numeric(.data$upper) + 1, '-', as.numeric(.data$upper) + 5),
+      Id = .data$Id %>%
         as.numeric() %>%
         `+`(1) %>%
-        as.character()
+        as.character(),
+
+      BeginDate = lubridate::ymd(paste0(.data$upper + 1, '-01-01')),
+      EndDate = lubridate::ymd(paste0(.data$upper + 5, '-12-31'))
     ) %>%
-    dplyr::select(Id, Description)
+    dplyr::select(.data$Id, .data$Description, .data$BeginDate, .data$EndDate)
   CalendarPeriods <- dplyr::bind_rows(CalendarPeriods, n)
   nr <- rates %>%
-    dplyr::filter(as.numeric(CalendarPeriods) == maxCP) %>%
-    dplyr::mutate(    CalendarPeriods = CalendarPeriods %>%
-                 as.numeric() %>%
-                 `+`(1) %>%
-                 as.character())
+    dplyr::filter(as.numeric(.data$CalendarPeriods) == maxCP) %>%
+    dplyr::mutate(CalendarPeriods = n$Id)
   rates <- dplyr::bind_rows(rates, nr)
 
   # Map age category indicators in rate file
   age_cut <- c(as.numeric(Ages$EntryPointYears), Inf)
   rates <- Ages %>%
-    dplyr::mutate(lower = stringr::word(Description, 1, sep=' - '),
-           upper = stringr::word(Description, 2, sep=' - ') %>%
-             as.numeric() + 1,
-           ageCat = paste0("[", trimws(lower), ',', trimws(upper), ")"),
-           ageCat = dplyr::if_else(is.na(upper), stringr::str_replace(ageCat, ' \\+', '') %>%
-                                     stringr::str_replace('NA', ' Inf'), ageCat),
-           Ages = as.numeric(Id)) %>%
-    dplyr::select(Ages, ageCat) %>%
-    dplyr::right_join(dplyr::mutate(rates, Ages = as.numeric(Ages)), by='Ages') %>%
+    dplyr::mutate(lower = as.numeric(.data$EntryPointYears),
+                  upper = lead(.data$lower) + 1,
+                  ageCat = paste0("[", trimws(.data$lower), ',', trimws(.data$upper), ")"),
+                  ageCat = dplyr::if_else(is.na(.data$upper),
+                                          stringr::str_replace(.data$ageCat, 'NA', ' Inf'),
+                                          .data$ageCat),
+                  Ages = as.numeric(.data$Id))  %>%
+    dplyr::select(.data$Ages, .data$ageCat) %>%
+    dplyr::right_join(dplyr::mutate(rates, Ages = as.numeric(.data$Ages)), by='Ages') %>%
     dplyr::select(-Ages)
 
   # Map CP category indicators in rate file
-  cp_cut <- purrr::map_dbl(stringr::str_split(CalendarPeriods$Description, '-'), ~as.numeric(.[1]))
-  cp_cut <- c(cp_cut, stringr::str_split(utils::tail(CalendarPeriods$Description, 1), '-')[[1]][2] %>%
-                as.numeric() + 1)
+  cp_cut <- c(lubridate::year(CalendarPeriods$BeginDate),
+              utils::tail(lubridate::year(CalendarPeriods$EndDate) + 1, 1))
   rates <- CalendarPeriods %>%
-    dplyr::mutate(lower = stringr::word(Description, 1, sep=' - '),
-           upper = stringr::word(Description, 2, sep=' - ') %>%
-             as.numeric() + 1,
-           CPCat = paste0("[", trimws(lower), ',', trimws(upper), ")"),
-           CalendarPeriods = as.numeric(Id)) %>%
-    dplyr::select(CalendarPeriods, CPCat) %>%
-    dplyr::right_join(dplyr::mutate(rates, CalendarPeriods = as.numeric(CalendarPeriods)), by='CalendarPeriods') %>%
-    dplyr::select(-CalendarPeriods)
+    dplyr::mutate(lower = lubridate::year(CalendarPeriods$BeginDate),
+           upper = lubridate::year(CalendarPeriods$EndDate) + 1,
+           CPCat = paste0("[", trimws(.data$lower), ',', trimws(.data$upper), ")"),
+           CalendarPeriods = as.numeric(.data$Id)) %>%
+    dplyr::select(.data$CalendarPeriods, .data$CPCat) %>%
+    dplyr::right_join(dplyr::mutate(rates, CalendarPeriods = as.numeric(.data$CalendarPeriods)), by='CalendarPeriods') %>%
+    dplyr::select(-.data$CalendarPeriods)
 
   # Map Race category indicators in rate file
-  if (all.equal(Races$Description, c('White', 'All other races'))){
+  if (identical(Races$Description, c('White', 'All other races'))){
     r_map <- c('White' = 'W', 'All other races' = 'N')
     Races$Description <- r_map[Races$Description]
   }

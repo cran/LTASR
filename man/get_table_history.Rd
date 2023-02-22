@@ -57,8 +57,7 @@ The historydf tibble must contain the variables:
 \item id,
 \item begin_dt (date),
 \item end_dt (date),
-\item <daily exposure levels>
-
+\item \emph{<daily exposure levels>}
 }
 }
 \examples{

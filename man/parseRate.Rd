@@ -13,9 +13,9 @@ parseRate(xmlpath)
 returns a list containing:
 \enumerate{
 \item $residual: the minor number where all unknown deaths will be assigned
-\item $MinorDesc: a dataframe/tibble giving descriptions of minor numbers as well as
+\item $MinorDesc: a data.frame/tibble giving descriptions of minor numbers as well as
 how minors are mapped to majors
-\item $mapping: a dataframe/tibble listing how each icd-code and revision will be mapped
+\item $mapping: a data.frame/tibble listing how each icd-code and revision will be mapped
 to each minor number
 \item $age_cut: a numeric specifying cut-points for age strata
 \item $cp_cut: a numeric specifying cut-points for calendar period strata

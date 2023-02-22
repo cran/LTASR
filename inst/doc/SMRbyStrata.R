@@ -6,7 +6,12 @@ knitr::opts_chunk$set(
 
 ## ----setup, messages = FALSE, include = FALSE---------------------------------
 library(LTASR)
-library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+library(purrr)
+library(stringr)
 library(knitr)
 
 ## ---- message=FALSE, results='hide'-------------------------------------------
@@ -76,6 +81,10 @@ smr_major_table_high %>%
 #    map(smr_minors,
 #        ~ smr_major(., us_119ucod_19602020))%>%
 #    setNames(names(smr_minors))
+#  
+#  #Adjust names of sheets
+#  names(smr_minors) <- str_replace_all(names(smr_minors), "\\[|\\]", "_")
+#  names(smr_majors) <- str_replace_all(names(smr_majors), "\\[|\\]", "_")
 #  
 #  #Save results
 #  library(writexl)

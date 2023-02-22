@@ -1,3 +1,8 @@
+# LTASR 0.1.1   
+
+* Fixed bugs in parseRate()
+* Dropped 'tidyverse' from SUGGESTS 
+
 # LTASR 0.1.0   
 
 * Added functions `get_table_history` and `get_table_history_est` adding the ability

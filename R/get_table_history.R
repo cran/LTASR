@@ -21,7 +21,7 @@
 #' * id,
 #' * begin_dt (date),
 #' * end_dt (date),
-#' * <daily exposure levels>
+#' * *&lt;daily exposure levels&gt;*
 #'
 #' @param persondf data.frame like object containing one row per person with the required demographic information.
 #' @param rateobj a rate object created by the `parseRate` function, or the included rate object `us_119ucod_19602020`.
