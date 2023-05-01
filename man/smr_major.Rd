@@ -10,7 +10,7 @@ smr_major(smr_minor_table, rateobj)
 \item{smr_minor_table}{A data.frame/tibble as created by \code{smr_minor} containing
 observed and expected number of deaths for each minor outcome}
 
-\item{rateobj}{A rate object created by \code{parseRate}}
+\item{rateobj}{A rate object created by \code{parseRate}, or the included rate object \code{us_119ucod_19602021}.}
 }
 \value{
 A data.frame/tibble containing the expected and observed number of deaths
@@ -32,7 +32,7 @@ person <- person_example \%>\%
          dlo = as.Date(dlo, format='\%m/\%d/\%Y'))
 
 #Import default rate object
-rateobj <- us_119ucod_19602020
+rateobj <- us_119ucod_19602021
 
 #Stratify person table
 py_table <- get_table(person, rateobj)

@@ -9,7 +9,7 @@ mapDeaths(persondf, rateobj)
 \arguments{
 \item{persondf}{Person data.frame}
 
-\item{rateobj}{A rate object created from \code{parseRate}}
+\item{rateobj}{A rate object created from \code{parseRate}, or the included rate object \code{us_119ucod_19602021}.}
 }
 \value{
 A data.frame for each death observed in the person file with the following variables:
@@ -26,7 +26,7 @@ library(LTASR)
 person <- person_example
 
 #Import default rate object
-rateobj <- us_119ucod_19602020
+rateobj <- us_119ucod_19602021
 
 #Check mapping of deaths to minors/outcomes
 mapDeaths(person, rateobj)

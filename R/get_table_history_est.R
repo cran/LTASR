@@ -25,7 +25,7 @@
 #' * *&lt;daily exposure levels&gt;*
 #'
 #' @param persondf data.frame like object containing one row per person with the required demographic information.
-#' @param rateobj a rate object created by the `parseRate` function, or the included rate object `us_119ucod_19602020`.
+#' @param rateobj a rate object created by the `parseRate` function, or the included rate object `us_119ucod_19602021`.
 #' @param historydf data.frame like object containing one row per person and exposure period. An exposure period is a
 #' period of time where exposure levels remain constant. See `Details` for required variables.
 #' @param exps a list containing exp_strata objects created by `exp_strata()`.
@@ -55,7 +55,7 @@
 #'          end_dt = as.Date(end_dt, format='%m/%d/%Y'))
 #'
 #' #Import default rate object
-#' rateobj <- us_119ucod_19602020
+#' rateobj <- us_119ucod_19602021
 
 #' #Define exposure of interest. Create exp_strata object.The `employed` variable
 #' #indicates (0/1) periods of employment and will be summed each day of each exposure
@@ -97,18 +97,18 @@ get_table_history_est <- function(persondf,
                                   step = 7,
                                   batch_size = 25 * step) {
 
-
   persondf <- persondf %>%
-    dplyr::select(.data$id,
-                  .data$gender,
-                  .data$race,
-                  .data$vs,
-                  .data$dob,
-                  .data$pybegin,
-                  .data$dlo,
-                  .data$rev,
-                  .data$code,
-                  !!!strata)#Keep only necessary variables
+    ungroup() %>%           #Ungroup and grouping variables
+    dplyr::select('id',
+                  'gender',
+                  'race',
+                  'vs',
+                  'dob',
+                  'pybegin',
+                  'dlo',
+                  'rev',
+                  'code',
+                  !!!strata) #Keep only necessary variables
 
   exp_var <- vars()
   for (..e in exps){
@@ -136,9 +136,18 @@ get_table_history_est <- function(persondf,
 
   #Format History
   historydf <- historydf %>%
-    dplyr::arrange(.data$id, .data$begin_dt)
+    dplyr::arrange(.data$id, .data$begin_dt) %>%
+    dplyr::ungroup()
 
-  checkHistory(historydf)
+  checkHistory(historydf, exp_var)
+
+  # Check all persons have a history entry
+  missing_history <- setdiff(person_all$id, historydf$id)
+  if (length(missing_history) > 0){
+    message('- Dropping ', length(missing_history), ' persons not found in history file')
+    person_all <- person_all %>%
+      dplyr::filter(!id %in% missing_history)
+  }
 
   #Map Outcomes
   deaths_minors <- mapDeaths(person_all, rateobj) %>%

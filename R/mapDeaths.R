@@ -1,7 +1,7 @@
 #' Map ICD codes to grouped minors
 #'
 #' @param persondf Person data.frame
-#' @param rateobj A rate object created from `parseRate`
+#' @param rateobj A rate object created from `parseRate`, or the included rate object `us_119ucod_19602021`.
 #'
 #' @return A data.frame for each death observed in the person file with the following variables:
 #' id, code, rev: from the `persondf`
@@ -16,7 +16,7 @@
 #' person <- person_example
 #'
 #' #Import default rate object
-#' rateobj <- us_119ucod_19602020
+#' rateobj <- us_119ucod_19602021
 #'
 #' #Check mapping of deaths to minors/outcomes
 #' mapDeaths(person, rateobj)

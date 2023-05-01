@@ -5,7 +5,7 @@
 #'
 #' @param smr_minor_table A data.frame/tibble as created by `smr_minor` containing
 #' observed and expected number of deaths for each minor outcome
-#' @param rateobj A rate object created by `parseRate`
+#' @param rateobj A rate object created by `parseRate`, or the included rate object `us_119ucod_19602021`.
 #'
 #' @return A data.frame/tibble containing the expected and observed number of deaths
 #' as well as SMRs, lower CI and upper CI for each major as defined in the rate object
@@ -23,7 +23,7 @@
 #'          dlo = as.Date(dlo, format='%m/%d/%Y'))
 #'
 #' #Import default rate object
-#' rateobj <- us_119ucod_19602020
+#' rateobj <- us_119ucod_19602021
 #'
 #' #Stratify person table
 #' py_table <- get_table(person, rateobj)

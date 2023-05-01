@@ -16,7 +16,7 @@ get_table_history(
 \arguments{
 \item{persondf}{data.frame like object containing one row per person with the required demographic information.}
 
-\item{rateobj}{a rate object created by the \code{parseRate} function, or the included rate object \code{us_119ucod_19602020}.}
+\item{rateobj}{a rate object created by the \code{parseRate} function, or the included rate object \code{us_119ucod_19602021}.}
 
 \item{historydf}{data.frame like object containing one row per person and exposure period. An exposure period is a
 period of time where exposure levels remain constant. See \code{Details} for required variables.}
@@ -76,7 +76,7 @@ history <- history_example \%>\%
          end_dt = as.Date(end_dt, format='\%m/\%d/\%Y'))
 
 #Import default rate object
-rateobj <- us_119ucod_19602020
+rateobj <- us_119ucod_19602021
 
 #Define exposure of interest. Create exp_strata object.The `employed` variable
 #indicates (0/1) periods of employment and will be summed each day of each exposure

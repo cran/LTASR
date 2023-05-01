@@ -1,3 +1,10 @@
+# LTASR 0.1.2   
+
+* Fixed additional bugs in parseRate()
+* Updated default rates through 2021
+* Added checks for history file (valid cutpoints, no missing data) and person file (one row per ID)
+* Dropped 'tidyverse' from SUGGESTS 
+
 # LTASR 0.1.1   
 
 * Fixed bugs in parseRate()

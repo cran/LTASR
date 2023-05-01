@@ -11,7 +11,7 @@
 #' @noRd
 #'
 #' @importFrom rlang .data
-checkHistory <- function(history){
+checkHistory <- function(history, exp_var){
   ###################################################
   # Check for necessary variables
   number <- c('id', 'begin_dt', 'end_dt') %in% colnames(history) %>%
@@ -22,15 +22,34 @@ checkHistory <- function(history){
 
 
   ###################################################
-  # Check if dob, pybegin and dlo are date values
+  # Check if begin_dt and end_dt are date values
   if (!(lubridate::is.Date(history$begin_dt) &
         lubridate::is.Date(history$end_dt))) stop("Either begin_dt or end_dt of history file is not a date value")
 
 
   ###################################################
+  # Check for missing values
+  na_num <- history %>%
+    dplyr::ungroup() %>%
+    dplyr::select('id', 'begin_dt', 'end_dt', !!!exp_var) %>%
+    dplyr::summarize(dplyr::across(dplyr::everything(),
+                                   ~ sum(is.na(.)))) %>%
+    tidyr::pivot_longer(everything())
+
+  if (sum(na_num$value) != 0){
+    nn <- na_num %>%
+      dplyr::filter(value > 0) %>%
+      `$`(name) %>%
+      paste0(collapse=', ')
+    stop('The following variables:\n       ',
+         nn,
+         '\n       contains missing values.')
+  }
+
+  ###################################################
   # Are dates in proper order (begin_dt <= end_dt)
   dtorder <- history %>%
-    ungroup() %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(beg_gt_end = (.data$begin_dt > .data$end_dt)) %>%
     dplyr::summarize(beg_gt_end = sum(.data$beg_gt_end))
   if (dtorder$beg_gt_end != 0) stop('At least one person has a period in their history file

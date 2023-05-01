@@ -24,7 +24,7 @@
 #' * *&lt;daily exposure levels&gt;*
 #'
 #' @param persondf data.frame like object containing one row per person with the required demographic information.
-#' @param rateobj a rate object created by the `parseRate` function, or the included rate object `us_119ucod_19602020`.
+#' @param rateobj a rate object created by the `parseRate` function, or the included rate object `us_119ucod_19602021`.
 #' @param historydf data.frame like object containing one row per person and exposure period. An exposure period is a
 #' period of time where exposure levels remain constant. See `Details` for required variables.
 #' @param exps a list containing exp_strata objects created by `exp_strata()`.
@@ -52,7 +52,7 @@
 #'          end_dt = as.Date(end_dt, format='%m/%d/%Y'))
 #'
 #' #Import default rate object
-#' rateobj <- us_119ucod_19602020
+#' rateobj <- us_119ucod_19602021
 #'
 #' #Define exposure of interest. Create exp_strata object.The `employed` variable
 #' #indicates (0/1) periods of employment and will be summed each day of each exposure
@@ -117,16 +117,17 @@ get_table_history <- function(persondf,
 
 
   persondf <- persondf %>%
-    dplyr::select(.data$id,
-                  .data$gender,
-                  .data$race,
-                  .data$vs,
-                  .data$dob,
-                  .data$pybegin,
-                  .data$dlo,
-                  .data$rev,
-                  .data$code,
-                  !!!strata)#Keep only necessary variables
+    ungroup() %>%           #Ungroup and grouping variables
+    dplyr::select('id',
+                  'gender',
+                  'race',
+                  'vs',
+                  'dob',
+                  'pybegin',
+                  'dlo',
+                  'rev',
+                  'code',
+                  !!!strata) #Keep only necessary variables
 
   exp_var <- dplyr::vars()
   for (..e in exps){
@@ -153,13 +154,22 @@ get_table_history <- function(persondf,
 
   #Format History
   historydf <- historydf %>%
-    dplyr::arrange(.data$id, .data$begin_dt)
+    dplyr::arrange(.data$id, .data$begin_dt)%>%
+    dplyr::ungroup()
 
-  checkHistory(historydf)
+  checkHistory(historydf, exp_var)
+
+  # Check all persons have a history entry
+  missing_history <- setdiff(person_all$id, historydf$id)
+  if (length(missing_history) > 0){
+    message('- Dropping ', length(missing_history), ' persons not found in history file')
+    person_all <- person_all %>%
+      dplyr::filter(!id %in% missing_history)
+  }
 
   #Map Outcomes
   deaths_minors <- mapDeaths(person_all, rateobj) %>%
-    dplyr::select(.data$id, .data$minor)
+    dplyr::select('id', 'minor')
   person_all <- dplyr::left_join(person_all, deaths_minors, by='id')
 
   #Loop through people
@@ -202,7 +212,40 @@ get_table_history <- function(persondf,
                begcum = stats::lag(.data$endcum) + !!rlang::sym(..e$var),
                begcum = dplyr::if_else(dplyr::row_number() == 1, !!rlang::sym(..e$var), .data$begcum),
                begcat = cut(.data$begcum, ..e$cutpt) %>% as.numeric(),
-               endcat = cut(.data$endcum, ..e$cutpt) %>% as.numeric()) %>%
+               endcat = cut(.data$endcum, ..e$cutpt) %>% as.numeric())
+
+      ##########################################################################
+      # Check for valid cumulative exposures
+      missing_cat <- his %>%
+        ungroup() %>%
+        filter(is.na(.data$begcat) | is.na(.data$endcat))
+
+      if (nrow(missing_cat) != 0){
+        a <- '\nThere is person-time with exposure values
+that fall outside of the user-supplied cutpoints.\n
+Below is an example:'
+        b <- missing_cat %>%
+          dplyr::ungroup() %>%
+          dplyr::filter(dplyr::row_number() == 1) %>%
+          dplyr::select('id', 'begin_dt', 'end_dt', ..e$var) %>%
+          knitr::kable() %>%
+          paste0(collapse='\n')
+        c <- missing_cat %>%
+          dplyr::ungroup() %>%
+          dplyr::filter(row_number() == 1) %>%
+          dplyr::select(`Cumulative Exposure at Beginning of Period` = 'begcum',
+                 `Cumulative Exposure at End of Period` = 'endcum') %>%
+          knitr::kable() %>%
+          paste0(collapse='\n')
+        d <- 'These values fall outside:'
+        e <- (paste0(..e$cutpt, collapse=', '))
+        f <- 'Are the cutpoints padded by -Inf and Inf?'
+
+        stop(paste(a, b, '', c, '', d, e, f, sep='\n'))
+      }
+      ##########################################################################
+
+      his <- his %>%
         dplyr::mutate(d = purrr::pmap(list(.data$begin_dt, .data$begcum, .data$endcat, !!rlang::sym(..e$var)), ~find_cuts(..1, ..2, ..3, ..4, ..e$cutpt)),
                d = if_else(.data$begcat == .data$endcat, list(c()), .data$d),
                begin_dt = purrr::map2(.data$begin_dt, .data$d, ~ c(.x, .y+1) + ..e$lag*365.25),
@@ -279,6 +322,7 @@ get_table_history <- function(persondf,
 
   }
   close(pb)
+
 
   # Calculate Means of exposures
   # py_table <- py_table %>%

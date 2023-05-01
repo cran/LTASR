@@ -367,7 +367,7 @@ included in LTASR, by a cumulative exposure variable
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">#Stratify cohort</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>py_table <span class="ot">&lt;-</span> <span class="fu">get_table_history</span>(<span class="at">persondf =</span> person,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                              <span class="at">rateobj =</span> us_119ucod_19602020,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                              <span class="at">rateobj =</span> us_119ucod_19602021,</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                              <span class="at">historydf =</span> history,</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                              <span class="at">exps =</span> <span class="fu">list</span>(exp))</span></code></pre></div>
 <p>This creates the following table (top 6 rows):</p>
@@ -466,8 +466,8 @@ person-year tables for each level:</p>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>py_table_high <span class="ot">&lt;-</span> py_table <span class="sc">%&gt;%</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(exposure_levelCat <span class="sc">==</span> <span class="st">&#39;(2e+04, Inf]&#39;</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>smr_minor_table_high <span class="ot">&lt;-</span> <span class="fu">smr_minor</span>(py_table_high, us_119ucod_19602020)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>smr_major_table_high <span class="ot">&lt;-</span> <span class="fu">smr_major</span>(smr_minor_table_high, us_119ucod_19602020)</span></code></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>smr_minor_table_high <span class="ot">&lt;-</span> <span class="fu">smr_minor</span>(py_table_high, us_119ucod_19602021)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>smr_major_table_high <span class="ot">&lt;-</span> <span class="fu">smr_major</span>(smr_minor_table_high, us_119ucod_19602021)</span></code></pre></div>
 <table style="width:100%;">
 <colgroup>
 <col width="6%" />
@@ -562,13 +562,13 @@ each strata level:</p>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="sc">~</span> {</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      pyt <span class="sc">%&gt;%</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(<span class="sc">!!</span><span class="fu">sym</span>(var) <span class="sc">==</span> .x) <span class="sc">%&gt;%</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">smr_minor</span>(us_119ucod_19602020)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">smr_minor</span>(us_119ucod_19602021)</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">%&gt;%</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(lvls)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>smr_majors <span class="ot">&lt;-</span> </span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(smr_minors,</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>      <span class="sc">~</span> <span class="fu">smr_major</span>(., us_119ucod_19602020))<span class="sc">%&gt;%</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>      <span class="sc">~</span> <span class="fu">smr_major</span>(., us_119ucod_19602021))<span class="sc">%&gt;%</span></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">names</span>(smr_minors))</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#Adjust names of sheets</span></span>

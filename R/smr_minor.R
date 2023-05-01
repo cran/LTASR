@@ -3,7 +3,7 @@
 #' `smr_minor` calculates SMRs for all minor groupings found within the rate
 #' object, `rateobj`, for the stratified cohort `py_table`
 #'
-#' @param py_table A stratified cohort created by `get_table`
+#' @param py_table A stratified cohort created by `get_table`, or the included rate object `us_119ucod_19602021`.
 #' @param rateobj A rate object created by `parseRate`
 #'
 #' @return A dataframe/tibble containing the expected and observed number of deaths
@@ -22,7 +22,7 @@
 #'          dlo = as.Date(dlo, format='%m/%d/%Y'))
 #'
 #' #Import default rate object
-#' rateobj <- us_119ucod_19602020
+#' rateobj <- us_119ucod_19602021
 #'
 #' #Stratify person table
 #' py_table <- get_table(person, rateobj)

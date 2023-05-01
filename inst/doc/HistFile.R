@@ -86,7 +86,7 @@ exp2 <- exp_strata(var = 'exposure_level',
 
 ## ---- message=FALSE, results='hide'-------------------------------------------
 py_table <- get_table_history(persondf = person,
-                              rateobj = us_119ucod_19602020,
+                              rateobj = us_119ucod_19602021,
                               historydf = history,
                               exps = list(exp1, exp2))
 
@@ -98,7 +98,7 @@ py_table %>%
 
 ## ---- message=FALSE, results='hide'-------------------------------------------
 py_table_est <- get_table_history_est(persondf = person,
-                                  rateobj = us_119ucod_19602020,
+                                  rateobj = us_119ucod_19602021,
                                   historydf = history,
                                   exps = list(exp1, exp2),
                                   step = 7)

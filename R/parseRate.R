@@ -103,7 +103,7 @@ parseRate <- function(xmlpath){
   age_cut <- c(as.numeric(Ages$EntryPointYears), Inf)
   rates <- Ages %>%
     dplyr::mutate(lower = as.numeric(.data$EntryPointYears),
-                  upper = lead(.data$lower) + 1,
+                  upper = lead(.data$lower),
                   ageCat = paste0("[", trimws(.data$lower), ',', trimws(.data$upper), ")"),
                   ageCat = dplyr::if_else(is.na(.data$upper),
                                           stringr::str_replace(.data$ageCat, 'NA', ' Inf'),

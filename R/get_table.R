@@ -17,7 +17,7 @@
 #' * code (character: ICD code)
 #'
 #' @param persondf data.frame like object containing one row per person with the required demographic information
-#' @param rateobj a rate object created by the `parseRate` function, or the included rate object `us_119ucod_19602020`
+#' @param rateobj a rate object created by the `parseRate` function, or the included rate object `us_119ucod_19602021`
 #' @param strata any additional variables contained in persondf on which to stratify.
 #' Must be wrapped in a `vars()` call from `dplyr`.
 #' @param batch_size a number specifying how many persons to stratify at a time. Default is 500
@@ -37,7 +37,7 @@
 #'          dlo = as.Date(dlo, format='%m/%d/%Y'))
 #'
 #' #Import default rate object
-#' rateobj <- us_119ucod_19602020
+#' rateobj <- us_119ucod_19602021
 #'
 #' #Stratify person table
 #' py_table <- get_table(person, rateobj)
@@ -60,6 +60,19 @@ get_table <- function(persondf,
   }
 
   if (length(strata) == 0) ..names <- c() else ..names <- purrr::map_chr(strata, rlang::as_name)
+
+  persondf <- persondf %>%
+    dplyr::ungroup() %>%           #Ungroup and grouping variables
+    dplyr::select('id',
+                  'gender',
+                  'race',
+                  'vs',
+                  'dob',
+                  'pybegin',
+                  'dlo',
+                  'rev',
+                  'code',
+                  !!!strata) #Keep only necessary variables
 
   checkPerson(persondf, rateobj)
   person_all <- persondf %>%

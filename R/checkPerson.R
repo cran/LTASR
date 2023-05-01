@@ -30,6 +30,13 @@ checkPerson <- function(person, rateobj){
         lubridate::is.Date(person$dlo))) stop("Either dob, pybegin or dlo is not a date value")
 
   ###################################################
+  # Check if dob, pybegin and dlo are date values
+  if (nrow(person) != length(unique(person$id))){
+    stop("Person file must contain one row per person.
+       There are multiple rows with the same id value in your person file.")
+  }
+
+  ###################################################
   # Check for missing values
   na_num <- person %>%
     dplyr::select('id', 'gender', 'race',
@@ -45,7 +52,7 @@ checkPerson <- function(person, rateobj){
       paste0(collapse=', ')
     stop('The following variables:\n       ',
          nn,
-         '\n       conatin missing values.')
+         '\n       contains missing values.')
   }
 
   ###################################################

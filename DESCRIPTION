@@ -1,7 +1,7 @@
 Package: LTASR
 Title: Functions to Replicate the Center for Disease Control and
         Prevention's 'LTAS' Software in R
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: 
     person("Stephen", "Bertke", , "nioshltas@cdc.gov", role = c("aut", "cre"))
 Description: A suite of functions for reading in a rate file in XML format, 
@@ -17,8 +17,8 @@ Depends: R (>= 2.10)
 LazyData: true
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2023-02-21 20:48:06 UTC; inh4
+Packaged: 2023-05-01 20:22:02 UTC; inh4
 Author: Stephen Bertke [aut, cre]
 Maintainer: Stephen Bertke <nioshltas@cdc.gov>
 Repository: CRAN
-Date/Publication: 2023-02-22 14:10:02 UTC
+Date/Publication: 2023-05-01 21:00:02 UTC

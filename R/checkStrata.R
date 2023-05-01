@@ -20,7 +20,7 @@
 #'          dlo = as.Date(dlo, format='%m/%d/%Y'))
 #'
 #' #Import default rate object
-#' rateobj <- us_119ucod_19602020
+#' rateobj <- us_119ucod_19602021
 #'
 #' #Stratify person table
 #' py_table <- get_table(person, rateobj)

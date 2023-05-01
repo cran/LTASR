@@ -33,7 +33,7 @@ history <- history_example %>%
 
 #Stratify cohort
 py_table <- get_table_history(persondf = person,
-                              rateobj = us_119ucod_19602020,
+                              rateobj = us_119ucod_19602021,
                               historydf = history,
                               exps = list(exp))
 
@@ -47,8 +47,8 @@ py_table %>%
 py_table_high <- py_table %>%
   filter(exposure_levelCat == '(2e+04, Inf]')
 
-smr_minor_table_high <- smr_minor(py_table_high, us_119ucod_19602020)
-smr_major_table_high <- smr_major(smr_minor_table_high, us_119ucod_19602020)
+smr_minor_table_high <- smr_minor(py_table_high, us_119ucod_19602021)
+smr_major_table_high <- smr_major(smr_minor_table_high, us_119ucod_19602021)
 
 ## ---- echo=FALSE--------------------------------------------------------------
 smr_minor_table_high %>%
@@ -73,13 +73,13 @@ smr_major_table_high %>%
 #      ~ {
 #        pyt %>%
 #          filter(!!sym(var) == .x) %>%
-#          smr_minor(us_119ucod_19602020)
+#          smr_minor(us_119ucod_19602021)
 #      }) %>%
 #    setNames(lvls)
 #  
 #  smr_majors <-
 #    map(smr_minors,
-#        ~ smr_major(., us_119ucod_19602020))%>%
+#        ~ smr_major(., us_119ucod_19602021))%>%
 #    setNames(names(smr_minors))
 #  
 #  #Adjust names of sheets

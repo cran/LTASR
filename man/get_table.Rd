@@ -9,7 +9,7 @@ get_table(persondf, rateobj, strata = dplyr::vars(), batch_size = 500)
 \arguments{
 \item{persondf}{data.frame like object containing one row per person with the required demographic information}
 
-\item{rateobj}{a rate object created by the \code{parseRate} function, or the included rate object \code{us_119ucod_19602020}}
+\item{rateobj}{a rate object created by the \code{parseRate} function, or the included rate object \code{us_119ucod_19602021}}
 
 \item{strata}{any additional variables contained in persondf on which to stratify.
 Must be wrapped in a \code{vars()} call from \code{dplyr}.}
@@ -50,7 +50,7 @@ person <- person_example \%>\%
          dlo = as.Date(dlo, format='\%m/\%d/\%Y'))
 
 #Import default rate object
-rateobj <- us_119ucod_19602020
+rateobj <- us_119ucod_19602021
 
 #Stratify person table
 py_table <- get_table(person, rateobj)
