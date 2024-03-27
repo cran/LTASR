@@ -112,7 +112,7 @@ history %>%
 
 Both exposures start at 0, then `employed` increases by 1 unit per day for both periods. This can therefore be thought of as a duration variable (in days) of all periods. The `exposure_level` increases rapidly (71 units per day) during the first period and then increases slower (5 units per day).
 
-**NOTE:** Any gaps within the history file and the follow-up times (for example, the period between the last exposure period within the history file and through the end of follow-up) is assumed to be 0. That is, exposure values do not change during these periods.
+**NOTE:** Any gaps within the history file and the follow-up times (for example, the period between the last exposure period within the history file through the end of follow-up) is assumed to be 0. That is, exposure values do not change during these periods.
 
 ## Stratifying person time
 
@@ -180,8 +180,9 @@ py_table_est %>%
 
 As can be seen, the `pday` are slightly different than the previous table. However, the effects on results will generally be trivial.
 
-In addition, two additional variables are available: `employed` and `exposure_level` indicating the person-time weighted mean values.\
-\## Step Specifications
+In addition, two additional variables are available: `employed` and `exposure_level` indicating the person-time weighted mean values.  
+
+## Step Specifications  
 
 When specifying the step parameter, there is a trade-off between computation speed and accuracy. Specifying `step = 1` will result in the most accurate stratification, but can be extremely slow.
 
@@ -202,14 +203,14 @@ ggplot() +
                      limits = c(0, 6.5))
 ```
 
-There are dramatic savings in computation time when increasing the step parameter in the low end. In this example, at about `step = 10`, improvements in computation time diminishes. It seems a step parameter of about 5-10 is a good compromise.
+There are dramatic savings in computation time when increasing the step parameter in the low end. In this example, after about `step = 10`, improvements in computation time diminish. It seems a step parameter of about 5-10 is a good compromise.
 
 Exact times will depend upon:
 
 -   the size of the cohort,\
 -   the number of exposure variables and\
--   the the number of strata per exposure variable.
+-   the number of strata per exposure variable.
 
-An additional consideration is the level of detail of the exposure variable. That is, if exposure is dramatically changing, relative to its specified strata, the loss of accuracy will be more dramatic for small increases of the step parameter. For example, age is stratified by 5-year increments, therefore, a `step` value of 1-week (`step = 7`) will cause a trivial amount of inaccuracy.
+An additional consideration is the level of detail of the exposure variable. That is, if exposure is dramatically changing, relative to its specified strata, the loss of accuracy will be more dramatic for small increases of the step parameter. For example, age is stratified by 5-*year* increments, therefore, a `step` value of 1-*week* (`step = 7`) will cause a trivial amount of inaccuracy.
 
 One option is to use a crude step value during initial investigations, but when results are to be published/presented, the function can be run again with a smaller step value.

@@ -440,15 +440,15 @@ drops from 71 to 5 units per day.</p>
 <code>history_example</code>, that can be used in conjunction with
 <code>person_example</code> for testing. Below reads in both example
 files and formats dates appropriately:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>person <span class="ot">&lt;-</span> person_example <span class="sc">%&gt;%</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dob =</span> <span class="fu">as.Date</span>(dob, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">pybegin =</span> <span class="fu">as.Date</span>(pybegin, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">dlo =</span> <span class="fu">as.Date</span>(dlo, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>))</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>         </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>history <span class="ot">&lt;-</span> history_example <span class="sc">%&gt;%</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">begin_dt =</span> <span class="fu">as.Date</span>(begin_dt, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">end_dt =</span> <span class="fu">as.Date</span>(end_dt, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>person <span class="ot">&lt;-</span> person_example <span class="sc">%&gt;%</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dob =</span> <span class="fu">as.Date</span>(dob, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>         <span class="at">pybegin =</span> <span class="fu">as.Date</span>(pybegin, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>         <span class="at">dlo =</span> <span class="fu">as.Date</span>(dlo, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>))</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>         </span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>history <span class="ot">&lt;-</span> history_example <span class="sc">%&gt;%</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">begin_dt =</span> <span class="fu">as.Date</span>(begin_dt, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>         <span class="at">end_dt =</span> <span class="fu">as.Date</span>(end_dt, <span class="at">format=</span><span class="st">&#39;%m/%d/%Y&#39;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="fu">group_by</span>(id)</span></code></pre></div>
 <p>For the remainder of this section, we will consider Person/id 1 to
 demonstrate how exposure is calculated over time. Below is the
 information found within the person file for person/id 1:</p>
@@ -491,8 +491,8 @@ duration variable (in days) of all periods. The
 the first period and then increases slower (5 units per day).</p>
 <p><strong>NOTE:</strong> Any gaps within the history file and the
 follow-up times (for example, the period between the last exposure
-period within the history file and through the end of follow-up) is
-assumed to be 0. That is, exposure values do not change during these
+period within the history file through the end of follow-up) is assumed
+to be 0. That is, exposure values do not change during these
 periods.</p>
 </div>
 <div id="stratifying-person-time" class="section level2">
@@ -504,12 +504,12 @@ must be defined using the <code>exp_strata()</code> function.</p>
 <p>Below specifies which exposure variables to consider, what cut-points
 to use for stratification and any lag (in years) to apply to the
 cumulative exposure variable:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>exp1 <span class="ot">&lt;-</span> <span class="fu">exp_strata</span>(<span class="at">var =</span> <span class="st">&#39;employed&#39;</span>,</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cutpt =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="dv">365</span>, <span class="cn">Inf</span>),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">lag =</span> <span class="dv">0</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>exp2 <span class="ot">&lt;-</span> <span class="fu">exp_strata</span>(<span class="at">var =</span> <span class="st">&#39;exposure_level&#39;</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cutpt =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="dv">0</span>, <span class="dv">10000</span>, <span class="dv">20000</span>, <span class="cn">Inf</span>),</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">lag =</span> <span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>exp1 <span class="ot">&lt;-</span> <span class="fu">exp_strata</span>(<span class="at">var =</span> <span class="st">&#39;employed&#39;</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                   <span class="at">cutpt =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="dv">365</span>, <span class="cn">Inf</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                   <span class="at">lag =</span> <span class="dv">0</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>exp2 <span class="ot">&lt;-</span> <span class="fu">exp_strata</span>(<span class="at">var =</span> <span class="st">&#39;exposure_level&#39;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                   <span class="at">cutpt =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="dv">0</span>, <span class="dv">10000</span>, <span class="dv">20000</span>, <span class="cn">Inf</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                   <span class="at">lag =</span> <span class="dv">10</span>)</span></code></pre></div>
 <p>The <code>employed</code> variable will contain 2 strata: (-Inf, 365]
 and (365, Inf]. Or, put alternatively, ≤ 1 year and &gt; 1 year.</p>
 <p>The <code>exposure_level</code> will contain 5 strata: (-Inf, 0], (0,
@@ -519,10 +519,10 @@ applied when defining strata.</p>
 <p>Once the exposure strata have been defined, LTASR provides two
 functions for stratifying the cohort. One is
 <code>get_table_history</code> whose usage is:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>py_table <span class="ot">&lt;-</span> <span class="fu">get_table_history</span>(<span class="at">persondf =</span> person,</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">rateobj =</span> us_119ucod_19602021,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">historydf =</span> history,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">exps =</span> <span class="fu">list</span>(exp1, exp2))</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>py_table <span class="ot">&lt;-</span> <span class="fu">get_table_history</span>(<span class="at">persondf =</span> person,</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                              <span class="at">rateobj =</span> us_119ucod_19602021,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                              <span class="at">historydf =</span> history,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>                              <span class="at">exps =</span> <span class="fu">list</span>(exp1, exp2))</span></code></pre></div>
 <p>This creates the below table:</p>
 <table>
 <colgroup>
@@ -628,11 +628,11 @@ calculates these mean exposure values and also allows for a
 <code>step</code> parameter to be specified defining the number of days
 to calculate the cumulative exposure.</p>
 <p>An example usage is:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>py_table_est <span class="ot">&lt;-</span> <span class="fu">get_table_history_est</span>(<span class="at">persondf =</span> person,</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">rateobj =</span> us_119ucod_19602021,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">historydf =</span> history,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">exps =</span> <span class="fu">list</span>(exp1, exp2),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">step =</span> <span class="dv">7</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>py_table_est <span class="ot">&lt;-</span> <span class="fu">get_table_history_est</span>(<span class="at">persondf =</span> person,</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                                  <span class="at">rateobj =</span> us_119ucod_19602021,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>                                  <span class="at">historydf =</span> history,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                                  <span class="at">exps =</span> <span class="fu">list</span>(exp1, exp2),</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                                  <span class="at">step =</span> <span class="dv">7</span>)</span></code></pre></div>
 <p>By specifying <code>step = 7</code>, person time is considered every
 7 days when allocating person-time to strata. This results in a
 significant increase in speed at the cost of a (generally) trivial
@@ -756,8 +756,10 @@ previous table. However, the effects on results will generally be
 trivial.</p>
 <p>In addition, two additional variables are available:
 <code>employed</code> and <code>exposure_level</code> indicating the
-person-time weighted mean values.<br />
-## Step Specifications</p>
+person-time weighted mean values.</p>
+</div>
+<div id="step-specifications" class="section level2">
+<h2>Step Specifications</h2>
 <p>When specifying the step parameter, there is a trade-off between
 computation speed and accuracy. Specifying <code>step = 1</code> will
 result in the most accurate stratification, but can be extremely
@@ -767,8 +769,8 @@ to stratify a cohort of 5,200 people with 2 exposure variables for
 various specifications of the <code>step</code> parameter:</p>
 <p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
 <p>There are dramatic savings in computation time when increasing the
-step parameter in the low end. In this example, at about
-<code>step = 10</code>, improvements in computation time diminishes. It
+step parameter in the low end. In this example, after about
+<code>step = 10</code>, improvements in computation time diminish. It
 seems a step parameter of about 5-10 is a good compromise.</p>
 <p>Exact times will depend upon:</p>
 <ul>
@@ -776,14 +778,15 @@ seems a step parameter of about 5-10 is a good compromise.</p>
 </li>
 <li>the number of exposure variables and<br />
 </li>
-<li>the the number of strata per exposure variable.</li>
+<li>the number of strata per exposure variable.</li>
 </ul>
 <p>An additional consideration is the level of detail of the exposure
 variable. That is, if exposure is dramatically changing, relative to its
 specified strata, the loss of accuracy will be more dramatic for small
 increases of the step parameter. For example, age is stratified by
-5-year increments, therefore, a <code>step</code> value of 1-week
-(<code>step = 7</code>) will cause a trivial amount of inaccuracy.</p>
+5-<em>year</em> increments, therefore, a <code>step</code> value of
+1-<em>week</em> (<code>step = 7</code>) will cause a trivial amount of
+inaccuracy.</p>
 <p>One option is to use a crude step value during initial
 investigations, but when results are to be published/presented, the
 function can be run again with a smaller step value.</p>

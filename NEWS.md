@@ -1,3 +1,8 @@
+# LTASR 0.1.3   
+
+* smr_* functions now calcualte exact CIs when expected deaths <20
+* updated maintainer to sbertke@cdc.gov
+
 # LTASR 0.1.2   
 
 * Fixed additional bugs in parseRate()

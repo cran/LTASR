@@ -38,12 +38,20 @@
 #' smr_custom(smr_minor_table, 4:40)
 #'
 smr_custom <- function(smr_minor_table, minor_grouping){
+  exact_lower <- purrr::map_dbl(0:20,
+                                \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2))$par})
+  exact_upper <- purrr::map_dbl(0:20,
+                                \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2))$par})
   smr_minor_table %>%
     dplyr::filter(minor %in% minor_grouping) %>%
     dplyr::summarize(observed = sum(observed, na.rm = TRUE),
               expected = round(sum(expected, na.rm = TRUE), 2)) %>%
     dplyr::mutate(smr = observed / expected,
-           lower = (observed*(1 - (1/(9*observed)) - (1.96/(3*sqrt(observed))))**3)  /expected,
-           upper = ((observed+1)*(1 - (1/(9*(observed+1))) + (1.96/(3*sqrt((observed+1)))))**3)/expected)
+                  lower = if_else(observed <= 20,
+                                  exact_lower[observed+1] /expected,
+                                  (observed*(1 - (1/(9*observed)) - (1.96/(3*sqrt(observed))))**3)  /expected),
+                  upper = if_else(observed <= 20,
+                                  exact_upper[observed+1] /expected,
+                                  ((observed+1)*(1 - (1/(9*(observed+1))) + (1.96/(3*sqrt((observed+1)))))**3)/expected))
 
 }

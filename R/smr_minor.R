@@ -31,6 +31,11 @@
 #' smr_minor(py_table, rateobj)
 #'
 smr_minor <- function(py_table, rateobj){
+  exact_lower <- purrr::map_dbl(0:20,
+                         \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2))$par})
+  exact_upper <- purrr::map_dbl(0:20,
+                               \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2))$par})
+
   # Collapse py_table
   py_table <- py_table %>%
     #dplyr::group_by(.data$ageCat, .data$CPCat, .data$gender, .data$race, .data$expCat, !!!strata) %>%
@@ -54,8 +59,12 @@ smr_minor <- function(py_table, rateobj){
     dplyr::summarize(observed = sum(`_o`, na.rm = TRUE),
               expected = round(sum(`_e`, na.rm = TRUE), 2)) %>%
     dplyr::mutate(smr = observed / expected,
-           lower = (observed*(1 - (1/(9*observed)) - (1.96/(3*sqrt(observed))))**3)  /expected,
-           upper = ((observed+1)*(1 - (1/(9*(observed+1))) + (1.96/(3*sqrt((observed+1)))))**3)/expected) %>%
+           lower = if_else(observed <= 20,
+                           exact_lower[observed+1] /expected,
+                           (observed*(1 - (1/(9*observed)) - (1.96/(3*sqrt(observed))))**3)  /expected),
+           upper = if_else(observed <= 20,
+                           exact_upper[observed+1] /expected,
+                           ((observed+1)*(1 - (1/(9*(observed+1))) + (1.96/(3*sqrt((observed+1)))))**3)/expected)) %>%
     dplyr::left_join(rateobj$MinorDesc, by=c('minor')) %>%
     dplyr::select(minor, Description, observed, expected, smr, lower, upper)
 }

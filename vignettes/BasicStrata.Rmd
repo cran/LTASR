@@ -51,7 +51,7 @@ Format = c('',
 ```
 * *It is highly recommended to use R as well as RStudio. RStudio is a separate piece of software used to write and run R code.*  
 
-1. It is highly recommended to use LTASR in conjunction with the tidyverse package. If this has not been installed yet, it will need to be installed for your first use:  
+1. It is also highly recommended to use LTASR in conjunction with the tidyverse package. If this has not been installed yet, it will need to be installed for your first use:  
 ```
 install.packages('tidyverse')
 install.packages('LTASR')
@@ -60,13 +60,13 @@ install.packages('LTASR')
   
 This will only need to be run once, ever. It will install the necessary packages and functions to your computer.  
 
-2.  The next step is to create a csv file containing the person level information. Each row of the file represents one unique person. The csv file must contain the following variables:  
+2.  The next step is to create a data file containing person level information. Each row of the file represents one unique person. The data file must contain the following variables:  
 
 ```{r tbl, fig.align='center', echo = FALSE}
 kable(per_form)
 ```
 
-**Note:** R variable names are case sensitive! All variable names must be lower case.
+**Note:** R variable names are case sensitive! LTASR assumes all variable names are lower-case.
 This can be done in any software. Below is an example person file format:  
 
 ```{r, fig.align='center', echo=FALSE, message=FALSE}
@@ -75,7 +75,7 @@ person_example %>%
   kable()
 ```
   
-3.	Once the person file has been created, there are several tools that can be used to read it into R. RStudio has a button in the top-right called 'Import Dataset' which provides tools for reading in data from various sources. This example will use the read_csv() function to read in the file into R (alternatively, other options are excel and SAS datasets from the 'Import Dataset' drop-down). The read_csv() function takes the file path of the person csv file as the first argument.  
+3.	Once the person file has been created, there are several tools that can be used to read it into R. RStudio has a button in the top-right labeled 'Import Dataset' which provides tools for reading in data from various sources. This example will use the read_csv() function to read in a csv file into R (alternatively, other options are excel and SAS datasets from the 'Import Dataset' drop-down). The read_csv() function takes the file path of the person csv file as the first argument.  
 
 **NOTE:** Paths in R use forward slashes (/) instead of the standard back slashes (\\) used by windows.  
 
@@ -127,7 +127,7 @@ py_table <- get_table(person, rateobj)
   
 6.	Once the py_table has been created, it can be saved using the write_csv() function. This file contains person day counts (pdays) and outcome counts for each minor (_o1, _o2, …..).  
 
-7.	With your stratified data, you can quickly create a table with of all SMRs for each minor found in the rate file using the smr_minor() function as below:  
+7.	With your stratified data, you can quickly create a table with all SMRs for each minor found in the rate file using the smr_minor() function as below:  
 
 ```
 smr_minor_table <- smr_minor(py_table, rateobj)
@@ -140,7 +140,7 @@ View(smr_minor_table)
 write_csv(smr_minor_table, "C:/SMR_Minors.csv")
 ```
 
-9.	Next, SMRs for various groupings can be calculated from this table. One particular grouping are the Majors from LTAS defined within the rate file. The smr_major() function can be used for this, which reads in the smr_minor table created in the previous step:  
+9.	Next, SMRs for various minor groupings can be calculated from this table. One particular grouping are the Majors (as was done in the original LTAS software) defined within the rate file. The smr_major() function can be used for this, which reads in the smr_minor table created in the previous step:  
 
 ```
 smr_major_table <- smr_major(smr_minor_table, rateobj)
@@ -148,7 +148,7 @@ View(smr_major_table)
 write_csv(smr_major_table, "C:/SMR_Majors")
 ```
 
-Additionally, any custom grouping can be calculated as well using the smr_custom() function where grouping are defined as a vector of numbers. Below defines groupings for all deaths and all cancers:  
+Additionally, any custom grouping can be calculated as well using the smr_custom() function where groupings are defined as a vector of numbers. Below defines groupings for all deaths and all cancers:  
 
 ```
 minor_grouping <- 1:119

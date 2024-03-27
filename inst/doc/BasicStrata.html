@@ -244,7 +244,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 a separate piece of software used to write and run R code.</em></li>
 </ul>
 <ol style="list-style-type: decimal">
-<li>It is highly recommended to use LTASR in conjunction with the
+<li>It is also highly recommended to use LTASR in conjunction with the
 tidyverse package. If this has not been installed yet, it will need to
 be installed for your first use:<br />
 </li>
@@ -255,8 +255,8 @@ install.packages(&#39;LTASR&#39;)
 <p>This will only need to be run once, ever. It will install the
 necessary packages and functions to your computer.</p>
 <ol start="2" style="list-style-type: decimal">
-<li>The next step is to create a csv file containing the person level
-information. Each row of the file represents one unique person. The csv
+<li>The next step is to create a data file containing person level
+information. Each row of the file represents one unique person. The data
 file must contain the following variables:</li>
 </ol>
 <table>
@@ -324,9 +324,9 @@ censored or alive at study end date</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Note:</strong> R variable names are case sensitive! All
-variable names must be lower case. This can be done in any software.
-Below is an example person file format:</p>
+<p><strong>Note:</strong> R variable names are case sensitive! LTASR
+assumes all variable names are lower-case. This can be done in any
+software. Below is an example person file format:</p>
 <table>
 <thead>
 <tr class="header">
@@ -380,9 +380,9 @@ Below is an example person file format:</p>
 <ol start="3" style="list-style-type: decimal">
 <li>Once the person file has been created, there are several tools that
 can be used to read it into R. RStudio has a button in the top-right
-called ‘Import Dataset’ which provides tools for reading in data from
+labeled ‘Import Dataset’ which provides tools for reading in data from
 various sources. This example will use the read_csv() function to read
-in the file into R (alternatively, other options are excel and SAS
+in a csv file into R (alternatively, other options are excel and SAS
 datasets from the ‘Import Dataset’ drop-down). The read_csv() function
 takes the file path of the person csv file as the first argument.</li>
 </ol>
@@ -436,7 +436,7 @@ gender, race, 5-year age and 5-year calendar period categories):</li>
 <li><p>Once the py_table has been created, it can be saved using the
 write_csv() function. This file contains person day counts (pdays) and
 outcome counts for each minor (_o1, _o2, …..).</p></li>
-<li><p>With your stratified data, you can quickly create a table with of
+<li><p>With your stratified data, you can quickly create a table with
 all SMRs for each minor found in the rate file using the smr_minor()
 function as below:</p></li>
 </ol>
@@ -448,17 +448,18 @@ write_csv():</li>
 <pre><code>View(smr_minor_table)
 write_csv(smr_minor_table, &quot;C:/SMR_Minors.csv&quot;)</code></pre>
 <ol start="9" style="list-style-type: decimal">
-<li>Next, SMRs for various groupings can be calculated from this table.
-One particular grouping are the Majors from LTAS defined within the rate
-file. The smr_major() function can be used for this, which reads in the
-smr_minor table created in the previous step:</li>
+<li>Next, SMRs for various minor groupings can be calculated from this
+table. One particular grouping are the Majors (as was done in the
+original LTAS software) defined within the rate file. The smr_major()
+function can be used for this, which reads in the smr_minor table
+created in the previous step:</li>
 </ol>
 <pre><code>smr_major_table &lt;- smr_major(smr_minor_table, rateobj)
 View(smr_major_table)
 write_csv(smr_major_table, &quot;C:/SMR_Majors&quot;)</code></pre>
 <p>Additionally, any custom grouping can be calculated as well using the
-smr_custom() function where grouping are defined as a vector of numbers.
-Below defines groupings for all deaths and all cancers:</p>
+smr_custom() function where groupings are defined as a vector of
+numbers. Below defines groupings for all deaths and all cancers:</p>
 <pre><code>minor_grouping &lt;- 1:119
 all_causes &lt;- smr_custom(smr_minor_table, minor_grouping)
 View(all_causes)

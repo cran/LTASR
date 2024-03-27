@@ -51,8 +51,8 @@ checkStrata <- function(py_table, rateobj) {
       knitr::kable()%>%
       print()
 
-    py_table <- dplyr::semi_join(py_table,
-                                 dplyr::filter(rateobj$rates, .data$minor==1),
+    py_table <- dplyr::anti_join(py_table,
+                                 out,
                                  by=c('ageCat', 'CPCat', 'gender', 'race'))
   }
   return(list(py_table, out))

@@ -11,9 +11,8 @@ within R. Currently, it will only stratify a cohort for fixed strata. It
 does not consider a history file for time-dependent exposures/variables.
 
 It comes pre-installed with referent underlying cause of death (UCOD)
-rates for the 119 minors defined at
-<https://www.cdc.gov/niosh/ltas/pdf/Rate-Info-Table-1.pdf> for the US
-population from 1960 to 2020.
+rates for the 119 minors defined in Minors119 vignette for the US
+population.
 
 ## Installation
 

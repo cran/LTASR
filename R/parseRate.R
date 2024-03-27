@@ -126,7 +126,7 @@ parseRate <- function(xmlpath){
     dplyr::select(-.data$CalendarPeriods)
 
   # Map Race category indicators in rate file
-  if (identical(Races$Description, c('White', 'All other races'))){
+  if (identical(sort(Races$Description), sort(c('White', 'All other races')))){
     r_map <- c('White' = 'W', 'All other races' = 'N')
     Races$Description <- r_map[Races$Description]
   }
@@ -139,7 +139,7 @@ parseRate <- function(xmlpath){
     dplyr::rename(Races = race)
 
   # Map Gender category indicators in rate file
-  if (all.equal(Genders$Description, c('Male', 'Female'))){
+  if (identical(sort(Genders$Description), sort(c('Male', 'Female')))){
     g_map <- c('Male' = 'M', 'Female' = 'F')
     Genders$Description <- g_map[Genders$Description]
   }
