@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -43,7 +43,7 @@ Format = c('',
 ## ----tbl, fig.align='center', echo = FALSE------------------------------------
 kable(per_form)
 
-## ---- fig.align='center', echo=FALSE, message=FALSE---------------------------
+## ----fig.align='center', echo=FALSE, message=FALSE----------------------------
 options(knitr.kable.NA = '')
 person_example %>%
   kable()

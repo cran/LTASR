@@ -35,10 +35,15 @@
 #' smr_major(smr_minor_table, rateobj)
 #'
 smr_major <- function(smr_minor_table, rateobj){
-  exact_lower <- purrr::map_dbl(0:20,
-                                \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2))$par})
+  exact_lower <- c(0,
+                   purrr::map_dbl(1:20,
+                                  \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2),
+                                                      method='Brent',
+                                                      lower=0, upper=50)$par}))
   exact_upper <- purrr::map_dbl(0:20,
-                                \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2))$par})
+                                \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2),
+                                                    method = 'Brent',
+                                                    lower=0, upper=50)$par})
   smr_minor_table %>%
     dplyr::left_join(rateobj$MinorDesc, by='minor') %>%
     dplyr::group_by(major, maj_desc) %>%

@@ -1,7 +1,7 @@
-#' 119 UCOD U.S. Death Rate, 1960-2021
+#' 119 UCOD U.S. Death Rate, 1960-2022
 #'
 #' A list containing referent underlying cause of death (UCOD) rate information
-#' for the US population from 1960-2021 for the 119 minor/outcome LTAS groupings
+#' for the US population from 1960-2022 for the 119 minor/outcome LTAS groupings
 #'
 #' @format A list with 4 elements:
 #' \describe{
@@ -12,4 +12,4 @@
 #'   ...
 #' }
 #' @source {Available upon request from sbertke@cdc.gov}
-"us_119ucod_19602021"
+"us_119ucod_recent"

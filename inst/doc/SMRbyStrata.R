@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -14,7 +14,7 @@ library(purrr)
 library(stringr)
 library(knitr)
 
-## ---- message=FALSE, results='hide'-------------------------------------------
+## ----message=FALSE, results='hide'--------------------------------------------
 #Define exposure cutpoints
 exp <- exp_strata(var = 'exposure_level',
                    cutpt = c(-Inf, 0, 10000, 20000, Inf),
@@ -33,11 +33,11 @@ history <- history_example %>%
 
 #Stratify cohort
 py_table <- get_table_history(persondf = person,
-                              rateobj = us_119ucod_19602021,
+                              rateobj = us_119ucod_recent,
                               historydf = history,
                               exps = list(exp))
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 py_table %>%
   head() %>%
   kable()
@@ -47,10 +47,10 @@ py_table %>%
 py_table_high <- py_table %>%
   filter(exposure_levelCat == '(2e+04, Inf]')
 
-smr_minor_table_high <- smr_minor(py_table_high, us_119ucod_19602021)
-smr_major_table_high <- smr_major(smr_minor_table_high, us_119ucod_19602021)
+smr_minor_table_high <- smr_minor(py_table_high, us_119ucod_recent)
+smr_major_table_high <- smr_major(smr_minor_table_high, us_119ucod_recent)
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 smr_minor_table_high %>%
   filter(minor %in% c(55, 52)) %>%
   head() %>%
@@ -60,7 +60,7 @@ smr_major_table_high %>%
   head() %>%
   kable(digits = 2)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  #Define the name of the person year table (py_table)
 #  #and the variable to calcualte SMRs accross
 #  pyt <- py_table
@@ -73,13 +73,13 @@ smr_major_table_high %>%
 #      ~ {
 #        pyt %>%
 #          filter(!!sym(var) == .x) %>%
-#          smr_minor(us_119ucod_19602021)
+#          smr_minor(us_119ucod_recent)
 #      }) %>%
 #    setNames(lvls)
 #  
 #  smr_majors <-
 #    map(smr_minors,
-#        ~ smr_major(., us_119ucod_19602021))%>%
+#        ~ smr_major(., us_119ucod_recent))%>%
 #    setNames(names(smr_minors))
 #  
 #  #Adjust names of sheets

@@ -31,10 +31,18 @@
 #' smr_minor(py_table, rateobj)
 #'
 smr_minor <- function(py_table, rateobj){
-  exact_lower <- purrr::map_dbl(0:20,
-                         \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2))$par})
+  exact_lower <- c(0,
+                   purrr::map_dbl(1:20,
+                         \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2),
+                                             method='Brent',
+                                             lower=0, upper=50)$par}))
   exact_upper <- purrr::map_dbl(0:20,
-                               \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2))$par})
+                               \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2),
+                                                   method = 'Brent',
+                                                   lower=0, upper=50)$par})
+
+  # Check all categories are within rate file
+  py_table <- checkStrata(py_table, rateobj)[[1]]
 
   # Collapse py_table
   py_table <- py_table %>%
@@ -44,7 +52,7 @@ smr_minor <- function(py_table, rateobj){
 
   rateobj$rates %>%
     tidyr::pivot_wider(values_from = rate, names_from = minor, names_prefix = '_r') %>%
-    dplyr::right_join(py_table, by=c('gender',
+    dplyr::inner_join(py_table, by=c('gender',
                               'race',
                               'ageCat',
                               'CPCat' )) %>%

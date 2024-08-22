@@ -59,8 +59,8 @@ expand_dates <-
                            ~ c(NA, ., NA))
       ) %>%
       tidyr::unnest(c(.data$date, .data$period)) %>%
-      dplyr::distinct(id, date, .keep_all = TRUE) %>%
       dplyr::filter(!!xv - 1 <= date & date <= !!yv) %>%
+      dplyr::distinct(id, date, .keep_all = TRUE) %>%
       dplyr::mutate(period = dplyr::case_when(
         is.na(.data$period) & date == !!yv ~ lag(.data$period) + 1 %% length(md_tmplt),
         TRUE ~ .data$period

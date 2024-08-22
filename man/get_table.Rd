@@ -35,6 +35,7 @@ The persondf tibble must contain the variables:
 \item dob (date),
 \item pybegin (date),
 \item dlo	(date),
+\item vs (character: indicator identifying deaths as 'D')
 \item rev (numeric: values 5-10),
 \item code (character: ICD code)
 }

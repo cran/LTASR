@@ -38,10 +38,15 @@
 #' smr_custom(smr_minor_table, 4:40)
 #'
 smr_custom <- function(smr_minor_table, minor_grouping){
-  exact_lower <- purrr::map_dbl(0:20,
-                                \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2))$par})
+  exact_lower <- c(0,
+                   purrr::map_dbl(1:20,
+                                  \(.x) {stats::optim(.x, function(x) abs(1-stats::ppois((.x - 1), x) - .05/2),
+                                                      method='Brent',
+                                                      lower=0, upper=50)$par}))
   exact_upper <- purrr::map_dbl(0:20,
-                                \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2))$par})
+                                \(.x) {stats::optim(.x, function(x) abs(stats::ppois(.x, x) - .05/2),
+                                                    method = 'Brent',
+                                                    lower=0, upper=50)$par})
   smr_minor_table %>%
     dplyr::filter(minor %in% minor_grouping) %>%
     dplyr::summarize(observed = sum(observed, na.rm = TRUE),

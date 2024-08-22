@@ -28,13 +28,15 @@ mapDeaths <- function(persondf, rateobj){
     dplyr::filter(vs=='D') %>%
     dplyr::mutate(code = stringr::str_remove_all(code, '\\.'))
   mapping <- rateobj$mapping %>%
-    dplyr::mutate(code = stringr::str_remove_all(code, '\\.'))
+    dplyr::mutate(code = stringr::str_remove_all(code, '\\.')) %>%
+    dplyr::select(code, rev, minor)
   deaths_minors <- persondf %>%
+    dplyr::select(id, code, rev) %>%
     dplyr::mutate(rev = stringr::str_pad(rev, 2, pad='0')) %>%
     dplyr::left_join(mapping, by=c('rev', 'code')) %>%
-    dplyr::mutate(minor = dplyr::if_else(is.na(minor), rateobj$residual, minor)) %>%
-    dplyr::select(id, code, rev, minor)
+    dplyr::mutate(minor = dplyr::if_else(is.na(minor), rateobj$residual, minor))
   recode <- nrow(persondf %>%
+                   dplyr::select(id, code, rev) %>%
                    dplyr::mutate(rev = stringr::str_pad(rev, 2, pad='0')) %>%
                    dplyr::left_join(mapping, by=c('rev', 'code')) %>%
                    dplyr::filter(is.na(minor)))

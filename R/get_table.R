@@ -13,6 +13,7 @@
 #' * dob (date),
 #' * pybegin (date),
 #' * dlo	(date),
+#' * vs (character: indicator identifying deaths as 'D')
 #' * rev (numeric: values 5-10),
 #' * code (character: ICD code)
 #'

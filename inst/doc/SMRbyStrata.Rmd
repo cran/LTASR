@@ -48,7 +48,7 @@ history <- history_example %>%
 
 #Stratify cohort
 py_table <- get_table_history(persondf = person,
-                              rateobj = us_119ucod_19602021,
+                              rateobj = us_119ucod_recent,
                               historydf = history,
                               exps = list(exp))
 ```  
@@ -68,8 +68,8 @@ To calculate SMRs separately for each strata of `exposure_levelCat`, one option 
 py_table_high <- py_table %>%
   filter(exposure_levelCat == '(2e+04, Inf]')
 
-smr_minor_table_high <- smr_minor(py_table_high, us_119ucod_19602021)
-smr_major_table_high <- smr_major(smr_minor_table_high, us_119ucod_19602021)
+smr_minor_table_high <- smr_minor(py_table_high, us_119ucod_recent)
+smr_major_table_high <- smr_major(smr_minor_table_high, us_119ucod_recent)
 ```  
 ```{r, echo=FALSE}
 smr_minor_table_high %>%
@@ -97,13 +97,13 @@ smr_minors <-
     ~ {
       pyt %>%
         filter(!!sym(var) == .x) %>%
-        smr_minor(us_119ucod_19602021)
+        smr_minor(us_119ucod_recent)
     }) %>%
   setNames(lvls)
 
 smr_majors <- 
   map(smr_minors,
-      ~ smr_major(., us_119ucod_19602021))%>%
+      ~ smr_major(., us_119ucod_recent))%>%
   setNames(names(smr_minors))
 
 #Adjust names of sheets

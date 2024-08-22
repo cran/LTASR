@@ -117,10 +117,10 @@ similar to the above code:
     rateobj <- parseRate('C:/UCOD_WashingtonState012018.xml')
 
 Alternatively, the LTASR package comes pre-installed with a rate object
-for the 119 LTAS minors of the US population from 1960-2020. This can be
+for the 119 LTAS minors of the US population from 1960-2022. This can be
 used in any analyses, but must be explicitly called first:
 
-    rateobj <- us_119ucod_19602020
+    rateobj <- us_119ucod_recent
 
 5.  Once a person file and a rate file have been read in, the
     get_table() function can be used to stratify the data from the

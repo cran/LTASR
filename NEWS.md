@@ -1,3 +1,7 @@
+# LTASR 0.1.4  
+
+* Bug fixes in the vignettes and various functions.  
+
 # LTASR 0.1.3   
 
 * smr_* functions now calcualte exact CIs when expected deaths <20

@@ -30,7 +30,7 @@ Format = c('',
 ## ----tbl, fig.align='center', echo = FALSE------------------------------------
 kable(per_form)
 
-## ---- fig.align='center', echo=FALSE, message=FALSE---------------------------
+## ----fig.align='center', echo=FALSE, message=FALSE----------------------------
 options(knitr.kable.NA = '')
 history_example %>%
   kable()
@@ -46,7 +46,7 @@ history <- history_example %>%
          end_dt = as.Date(end_dt, format='%m/%d/%Y')) %>%
   group_by(id)
 
-## ---- fig.align='center', echo=FALSE, message=FALSE---------------------------
+## ----fig.align='center', echo=FALSE, message=FALSE----------------------------
 options(knitr.kable.NA = '')
 person_example %>%
   filter(id == 1) %>%
@@ -84,32 +84,32 @@ exp2 <- exp_strata(var = 'exposure_level',
                    cutpt = c(-Inf, 0, 10000, 20000, Inf),
                    lag = 10)
 
-## ---- message=FALSE, results='hide'-------------------------------------------
+## ----message=FALSE, results='hide'--------------------------------------------
 py_table <- get_table_history(persondf = person,
-                              rateobj = us_119ucod_19602021,
+                              rateobj = us_119ucod_recent,
                               historydf = history,
                               exps = list(exp1, exp2))
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 py_table %>%
   head() %>%
   kable()
 
 
-## ---- message=FALSE, results='hide'-------------------------------------------
+## ----message=FALSE, results='hide'--------------------------------------------
 py_table_est <- get_table_history_est(persondf = person,
-                                  rateobj = us_119ucod_19602021,
+                                  rateobj = us_119ucod_recent,
                                   historydf = history,
                                   exps = list(exp1, exp2),
                                   step = 7)
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 py_table_est %>%
   head() %>%
   kable(digits = 1)
 
 
-## ---- echo=FALSE, fig.align='center', fig.width=8, fig.height=4---------------
+## ----echo=FALSE, fig.align='center', fig.width=8, fig.height=4----------------
 times <- c(360.33, 192.92, 138.79, 116.28, 101.35,  85.00,  79.82,  71.31,  68.42,  63.43,  43.82,  33.28) 
 
 ggplot() +
